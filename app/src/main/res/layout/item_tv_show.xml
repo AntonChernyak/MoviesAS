@@ -31,7 +31,7 @@
         android:layout_marginTop="@dimen/material_margin_small"
         android:ellipsize="end"
         android:maxLines="2"
-        android:textColor="@color/white"
+        android:textAllCaps="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/image_tv_show_preview"
         tools:text="Мир дикого запада"
