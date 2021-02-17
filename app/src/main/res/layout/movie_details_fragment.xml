@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/blueDark"
+        android:overScrollMode="never"
         android:padding="@dimen/container_padding_size"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -19,12 +20,10 @@
 
             <TextView
                 android:id="@+id/details_movie_title"
+                style="@style/MovieDetailsTitleStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/material_margin_normal"
-                android:textColor="@color/white"
-                android:textSize="24sp"
-                android:textStyle="bold"
                 app:layout_constraintEnd_toStartOf="@id/full_hd_label"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -41,14 +40,12 @@
 
             <Button
                 android:id="@+id/button_watch"
+                style="@style/MovieDetailsButtonTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/material_margin_normal"
                 android:background="@drawable/watch_button_background"
                 android:text="@string/watch"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/details_movie_title" />
 
@@ -70,7 +67,7 @@
                 style="@style/MovieDetailsPlainText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20sp"
+                android:layout_marginTop="@dimen/container_padding_size"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/button_watch"
@@ -85,12 +82,11 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/actors_recycler_view"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/material_margin_normal"
                 android:orientation="horizontal"
                 android:overScrollMode="never"
-                android:scrollbars="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -175,8 +171,6 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="false"
             app:contentScrim="?attr/colorPrimary"
-            app:expandedTitleMarginEnd="64dp"
-            app:expandedTitleMarginStart="48dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView

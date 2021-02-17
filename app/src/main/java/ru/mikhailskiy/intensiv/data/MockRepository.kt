@@ -5,7 +5,7 @@ object MockRepository {
     fun getMovies(): List<Movie> {
 
         val  actorsList = ArrayList<Actor>()
-        for (actor in 0..3) {
+        for (actor in 0..4) {
             actorsList.add(Actor("Tobey" ,"Maguire 1", "https://2fan.ru/upload/000/u1/3/6/36b62c70.png"))
             actorsList.add(Actor("Tobey" ,"Maguire 2", "https://s.tcdn.co/8a1/9aa/8a19aab4-98c0-37cb-a3d4-491cb94d7e12/48.png"))
             actorsList.add(Actor("Tobey" ,"Maguire 3", "https://memegenerator.net/img/images/16704817.jpg"))
@@ -40,7 +40,8 @@ object MockRepository {
         for (x in 0..10) {
             val movie = Movie(
                 title = "Stranger Things $x",
-                voteAverage = 10.0 - x
+                voteAverage = 10.0 - x,
+                posterUrl = "https://i.ytimg.com/vi/Qgcj0QJDYEw/maxresdefault.jpg"
             )
             tvShowsList.add(movie)
         }

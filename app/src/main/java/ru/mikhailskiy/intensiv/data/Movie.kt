@@ -8,7 +8,8 @@ class Movie(
     val actors: ArrayList<Actor> = ArrayList(),
     val studio: String = "",
     val genre: List<String> = ArrayList(),
-    val year: String = ""
+    val year: String = "",
+    var isFavorite: Boolean = false
 ) {
     val rating: Float
         get() = voteAverage.div(2).toFloat()

@@ -1,11 +1,9 @@
 package ru.mikhailskiy.intensiv.ui.movie_details
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
@@ -23,6 +21,7 @@ private const val ARG_ACTORS = "actors"
 
 class MovieDetailsFragment : Fragment() {
 
+    private var interimFlag = false
     private var title: String? = null
     private var description: String? = null
     private var year: String? = null
@@ -44,7 +43,7 @@ class MovieDetailsFragment : Fragment() {
             studio = it.getString(ARG_STUDIO)
             genres = it.getString(ARG_GENRE)
             posterUrl = it.getString(ARG_POSTER_URL)
-            actorsList = it.getParcelableArrayList(ARG_ACTORS)!!
+            actorsList = it.getParcelableArrayList(ARG_ACTORS) ?: ArrayList()
         }
     }
 
@@ -71,19 +70,10 @@ class MovieDetailsFragment : Fragment() {
 
         Picasso.get().load(posterUrl).into(image_poster)
 
-        actors_recycler_view.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        actors_recycler_view.adapter = adapter.apply { addAll(listOf()) }
+        val actorsItems = actorsList.map {ActorItem(it)}.toList()
 
-        val actorsItems = listOf(
-            ActorsCardContainer(
-                actorsList.map {
-                    Log.d("TAGGGG", it.toString())
-                    ActorItem(it)
-                }.toList()
-            )
-        )
-        Log.d("TAGGGG", "actorsItems = ${actorsItems}")
         actors_recycler_view.adapter = adapter.apply { addAll(actorsItems) }
+        actors_recycler_view.isNestedScrollingEnabled = false
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -94,7 +84,13 @@ class MovieDetailsFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_add_to_favorite -> {
-                item.setIcon(R.drawable.ic_favorite)
+                interimFlag = if (interimFlag){
+                    item.setIcon(R.drawable.ic_not_favorite)
+                    false
+                } else {
+                    item.setIcon(R.drawable.ic_favorite)
+                    true
+                }
                 return true
             }
             android.R.id.home -> {

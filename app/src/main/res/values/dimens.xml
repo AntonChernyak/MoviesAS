@@ -21,5 +21,6 @@
     <!-- Tv Show Card Item -->
     <dimen name="tv_show_card_elevation">10dp</dimen>
     <dimen name="tv_show_card_margin">10dp</dimen>
+    <dimen name="actor_photo_size">48dp</dimen>
 
 </resources>

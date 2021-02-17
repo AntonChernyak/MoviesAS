@@ -44,18 +44,14 @@ class TvShowsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val tvShowsList = listOf(
-            TvShowsCardContainer(
+        val tvShowsList =
                 MockRepository.getTvShows().map {
                     TvShowItem(it) { tvShow ->
                         openTvShowDetails(tvShow)
                     }
-                }.toList()
-            )
-        )
+                }
 
         tv_shows_recycler_view.adapter = adapter.apply { addAll(tvShowsList) }
-
     }
 
     private fun openTvShowDetails(movie: Movie) {
@@ -70,6 +66,7 @@ class TvShowsFragment : Fragment() {
 
         val bundle = Bundle()
         bundle.putString("title", movie.title)
+        bundle.putString("posterUrl", movie.posterUrl)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 

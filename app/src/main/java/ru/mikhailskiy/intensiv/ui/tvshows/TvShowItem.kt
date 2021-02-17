@@ -21,7 +21,7 @@ class TvShowItem (
         }
 
         Picasso.get()
-            .load("https://i.ytimg.com/vi/Qgcj0QJDYEw/maxresdefault.jpg")
+            .load(tvShow.posterUrl)
             .into(viewHolder.image_tv_show_preview)
     }
 
