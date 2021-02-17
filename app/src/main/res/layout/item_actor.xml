@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:layout_marginEnd="@dimen/material_margin_large"
+    android:orientation="vertical"
+    tools:background="@color/blueDark">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/actor_photo"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+        tools:src="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/actor_first_name"
+        style="@style/MovieDetailsPlainText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="@tools:sample/first_names" />
+
+    <TextView
+        android:id="@+id/actor_last_name"
+        style="@style/MovieDetailsPlainText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="@tools:sample/last_names" />
+
+</LinearLayout>

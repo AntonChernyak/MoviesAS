@@ -44,9 +44,6 @@ class TvShowsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-       // tv_shows_recycler_view.layoutManager = LinearLayoutManager(context)
-       // tv_shows_recycler_view.adapter = adapter.apply { addAll(listOf()) }
-
         val tvShowsList = listOf(
             TvShowsCardContainer(
                 MockRepository.getTvShows().map {

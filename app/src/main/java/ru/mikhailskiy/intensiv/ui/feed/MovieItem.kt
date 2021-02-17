@@ -15,15 +15,14 @@ class MovieItem(
     override fun getLayout() = R.layout.item_with_text
 
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.description.text = content.title
+        viewHolder.details_movie_title.text = content.title
         viewHolder.movie_rating.rating = content.rating
-        viewHolder.content.setOnClickListener {
+        viewHolder.container_content.setOnClickListener {
             onClick.invoke(content)
         }
 
-        // TODO Получать из модели
         Picasso.get()
-            .load("https://m.media-amazon.com/images/M/MV5BYTk3MDljOWQtNGI2My00OTEzLTlhYjQtOTQ4ODM2MzUwY2IwXkEyXkFqcGdeQXVyNTIzOTk5ODM@._V1_.jpg")
+            .load(content.posterUrl)
             .into(viewHolder.image_preview)
     }
 }

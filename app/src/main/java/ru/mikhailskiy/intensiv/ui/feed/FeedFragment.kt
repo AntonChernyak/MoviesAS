@@ -1,6 +1,7 @@
 package ru.mikhailskiy.intensiv.ui.feed
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -92,6 +93,12 @@ class FeedFragment : Fragment() {
 
         val bundle = Bundle()
         bundle.putString("title", movie.title)
+        bundle.putString("description", movie.description)
+        bundle.putString("studio", movie.studio)
+        bundle.putString("genre", movie.genre.joinToString())
+        bundle.putString("year", movie.year)
+        bundle.putString("posterUrl", movie.posterUrl)
+        bundle.putParcelableArrayList("actors", movie.actors)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
