@@ -11,25 +11,12 @@ import kotlinx.android.synthetic.main.tv_shows_fragment.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.MockRepository
 import ru.mikhailskiy.intensiv.data.Movie
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE
 
 class TvShowsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
@@ -65,8 +52,7 @@ class TvShowsFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putString("title", movie.title)
-        bundle.putString("posterUrl", movie.posterUrl)
+        bundle.putParcelable(ARG_MOVIE, movie)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
@@ -76,11 +62,10 @@ class TvShowsFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
+        fun newInstance(movie: Movie) =
             TvShowsFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                    putParcelable(ARG_MOVIE, movie)
                 }
             }
     }

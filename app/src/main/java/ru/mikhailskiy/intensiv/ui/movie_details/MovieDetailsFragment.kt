@@ -9,27 +9,12 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.movie_details_fragment.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.Actor
-
-private const val ARG_TITLE = "title"
-private const val ARG_DESCRIPTION = "description"
-private const val ARG_STUDIO = "studio"
-private const val ARG_GENRE = "genre"
-private const val ARG_YEAR = "year"
-private const val ARG_POSTER_URL = "posterUrl"
-private const val ARG_ACTORS = "actors"
+import ru.mikhailskiy.intensiv.data.Movie
+import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE
 
 class MovieDetailsFragment : Fragment() {
 
-    private var interimFlag = false
-    private var title: String? = null
-    private var description: String? = null
-    private var year: String? = null
-    private var studio: String? = null
-    private var genres: String? = null
-    private var posterUrl: String? = null
-    private var actorsList: List<Actor> = ArrayList()
-
+    private var movie: Movie? = null
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -37,13 +22,7 @@ class MovieDetailsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            title = it.getString(ARG_TITLE)
-            description = it.getString(ARG_DESCRIPTION)
-            year = it.getString(ARG_YEAR)
-            studio = it.getString(ARG_STUDIO)
-            genres = it.getString(ARG_GENRE)
-            posterUrl = it.getString(ARG_POSTER_URL)
-            actorsList = it.getParcelableArrayList(ARG_ACTORS) ?: ArrayList()
+            movie = it.getParcelable(ARG_MOVIE)
         }
     }
 
@@ -57,22 +36,22 @@ class MovieDetailsFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        (requireActivity() as AppCompatActivity?)?.setSupportActionBar(toolbar_details)
+        (requireActivity() as AppCompatActivity?)?.setSupportActionBar(details_toolbar)
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.title = ""
         setHasOptionsMenu(true)
 
-        details_movie_title.text = title
-        details_movie_description.text = description
-        textView_year.text = year
-        textView_studio.text = studio
-        textView_genre.text = genres
+        details_movie_title_text_view.text = movie?.title
+        details_movie_description_text_view.text = movie?.description
+        year_text_view.text = movie?.year
+        studio_text_view.text = movie?.studio
+        genre_text_view.text = movie?.genre?.joinToString()
 
-        Picasso.get().load(posterUrl).into(image_poster)
+        Picasso.get().load(movie?.posterUrl).into(details_poster_image_view)
 
-        val actorsItems = actorsList.map {ActorItem(it)}.toList()
+        val actorsItems = movie?.actors?.map { ActorItem(it) }?.toList()
 
-        actors_recycler_view.adapter = adapter.apply { addAll(actorsItems) }
+        actors_recycler_view.adapter = adapter.apply { actorsItems?.let { addAll(it) } }
         actors_recycler_view.isNestedScrollingEnabled = false
     }
 
@@ -84,7 +63,7 @@ class MovieDetailsFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_add_to_favorite -> {
-                interimFlag = if (interimFlag){
+                movie?.isFavorite = if (movie?.isFavorite!!) {
                     item.setIcon(R.drawable.ic_not_favorite)
                     false
                 } else {
@@ -104,11 +83,10 @@ class MovieDetailsFragment : Fragment() {
     companion object {
 
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
+        fun newInstance(movie: Movie) =
             MovieDetailsFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_TITLE, param1)
-                    putString(ARG_DESCRIPTION, param2)
+                    putParcelable(ARG_MOVIE, movie)
                 }
             }
     }

@@ -23,7 +23,7 @@
         tools:src="@drawable/ic_avatar" />
 
     <TextView
-        android:id="@+id/details_movie_title"
+        android:id="@+id/details_movie_title_text_view"
         android:layout_width="@dimen/movie_card_text_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/material_margin_super_small"

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.feed_header.*
 import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_SEARCH
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -33,7 +34,7 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val searchTerm = requireArguments().getString("search")
+        val searchTerm = requireArguments().getString(ARG_SEARCH)
         search_toolbar.setText(searchTerm)
     }
 

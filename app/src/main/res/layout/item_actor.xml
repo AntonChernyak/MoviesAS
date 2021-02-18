@@ -10,7 +10,7 @@
     tools:background="@color/blueDark">
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/actor_photo"
+        android:id="@+id/actor_photo_image_view"
         android:layout_width="@dimen/actor_photo_size"
         android:layout_height="@dimen/actor_photo_size"
         android:scaleType="centerCrop"
@@ -18,14 +18,14 @@
         tools:src="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/actor_first_name"
+        android:id="@+id/actor_first_name_text_view"
         style="@style/MovieDetailsPlainText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="@tools:sample/first_names" />
 
     <TextView
-        android:id="@+id/actor_last_name"
+        android:id="@+id/actor_last_name_text_view"
         style="@style/MovieDetailsPlainText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
