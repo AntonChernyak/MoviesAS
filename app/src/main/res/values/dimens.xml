@@ -1,7 +1,10 @@
 <resources>
+    <dimen name="material_margin_large">32dp</dimen>
     <dimen name="material_margin_normal">16dp</dimen>
     <dimen name="material_margin_small">8dp</dimen>
     <dimen name="material_margin_super_small">4dp</dimen>
+
+    <dimen name="container_padding_size">20dp</dimen>
 
     <dimen name="image_preview_height">120dp</dimen>
     <dimen name="image_preview_width">75dp</dimen>
@@ -18,5 +21,6 @@
     <!-- Tv Show Card Item -->
     <dimen name="tv_show_card_elevation">10dp</dimen>
     <dimen name="tv_show_card_margin">10dp</dimen>
+    <dimen name="actor_photo_size">48dp</dimen>
 
 </resources>

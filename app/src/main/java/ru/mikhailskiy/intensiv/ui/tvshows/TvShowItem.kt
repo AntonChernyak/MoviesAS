@@ -1,12 +1,12 @@
 package ru.mikhailskiy.intensiv.ui.tvshows
 
-import com.squareup.picasso.Picasso
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
 import kotlinx.android.synthetic.main.item_tv_show.*
-import kotlinx.android.synthetic.main.item_tv_show.tv_show_rating
+import kotlinx.android.synthetic.main.item_tv_show.tv_show_rating_rating_bar
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.Movie
+import ru.mikhailskiy.intensiv.loadImage
 
 class TvShowItem (
     private val tvShow: Movie,
@@ -14,15 +14,12 @@ class TvShowItem (
     ): Item() {
 
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.tv_show_title.text = tvShow.title
-        viewHolder.tv_show_rating.rating = tvShow.rating
+        viewHolder.tv_show_title_text_view.text = tvShow.title
+        viewHolder.tv_show_rating_rating_bar.rating = tvShow.rating
         viewHolder.tv_card_content.setOnClickListener {
             onClick.invoke(tvShow)
         }
-
-        Picasso.get()
-            .load("https://i.ytimg.com/vi/Qgcj0QJDYEw/maxresdefault.jpg")
-            .into(viewHolder.image_tv_show_preview)
+        viewHolder.tv_show_preview_image_view.loadImage(tvShow.posterUrl)
     }
 
     override fun getLayout(): Int = R.layout.item_tv_show

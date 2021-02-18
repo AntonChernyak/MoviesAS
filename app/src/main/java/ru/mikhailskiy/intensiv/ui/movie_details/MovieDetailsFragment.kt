@@ -1,25 +1,28 @@
 package ru.mikhailskiy.intensiv.ui.movie_details
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import kotlinx.android.synthetic.main.movie_details_fragment.*
 import ru.mikhailskiy.intensiv.R
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import ru.mikhailskiy.intensiv.data.Movie
+import ru.mikhailskiy.intensiv.loadImage
+import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE
 
 class MovieDetailsFragment : Fragment() {
 
-    private var param1: String? = null
-    private var param2: String? = null
+    private var movie: Movie? = null
+    private val adapter by lazy {
+        GroupAdapter<GroupieViewHolder>()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+            movie = it.getParcelable(ARG_MOVIE)
         }
     }
 
@@ -31,15 +34,61 @@ class MovieDetailsFragment : Fragment() {
         return inflater.inflate(R.layout.movie_details_fragment, container, false)
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        (requireActivity() as AppCompatActivity?)?.setSupportActionBar(details_toolbar)
+        (requireActivity() as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        (requireActivity() as AppCompatActivity?)?.supportActionBar?.title = ""
+        setHasOptionsMenu(true)
+
+        details_movie_title_text_view.text = movie?.title
+        details_movie_description_text_view.text = movie?.description
+        year_text_view.text = movie?.year
+        studio_text_view.text = movie?.studio
+        genre_text_view.text = movie?.genre?.joinToString()
+
+        movie?.posterUrl?.let { details_poster_image_view.loadImage(it) }
+
+        val actorsItems = movie?.actors?.map { ActorItem(it) }?.toList()
+
+        actors_recycler_view.adapter = adapter.apply { actorsItems?.let { addAll(it) } }
+        actors_recycler_view.isNestedScrollingEnabled = false
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.details_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_add_to_favorite -> {
+                movie?.isFavorite = if (movie?.isFavorite!!) {
+                    item.setIcon(R.drawable.ic_not_favorite)
+                    false
+                } else {
+                    item.setIcon(R.drawable.ic_favorite)
+                    true
+                }
+                return true
+            }
+            android.R.id.home -> {
+                requireActivity().onBackPressed()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     companion object {
 
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
+        fun newInstance(movie: Movie) =
             MovieDetailsFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                    putParcelable(ARG_MOVIE, movie)
                 }
             }
     }
+
 }

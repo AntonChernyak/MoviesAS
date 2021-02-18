@@ -8,7 +8,6 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-
     <style name="AppTheme.Title.Collapsed" parent="android:TextAppearance">
         <item name="android:textSize">20sp</item>
     </style>
@@ -21,11 +20,42 @@
         <item name="cornerSize">10%</item>
     </style>
 
-    <style name="TvShowItemTitleTextStyle">
+    <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.App.OnlyBottomCornerSize10Percent" parent="">
+        <item name="cornerFamilyBottomLeft">rounded</item>
+        <item name="cornerFamilyBottomRight">rounded</item>
+        <item name="cornerSizeBottomRight">10%</item>
+        <item name="cornerSizeBottomLeft">10%</item>
+    </style>
+
+    <style name="BoldWhiteTextStyle">
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">15sp</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
+    <style name="TvShowItemTitleTextStyle" parent="BoldWhiteTextStyle">
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="MovieDetailsLabelStyle" parent="BoldWhiteTextStyle">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="MovieDetailsTitleStyle" parent="BoldWhiteTextStyle">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="MovieDetailsPlainText">
+        <item name="android:lineSpacingExtra">8sp</item>
+        <item name="android:textColor">@color/transparent_grey</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="MovieDetailsButtonTextStyle" parent="BoldWhiteTextStyle">
+        <item name="android:textSize">12sp</item>
+    </style>
 
 </resources>

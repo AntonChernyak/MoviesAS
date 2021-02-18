@@ -11,7 +11,7 @@
     tools:background="@color/mainFeedBackground">
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/image_tv_show_preview"
+        android:id="@+id/tv_show_preview_image_view"
         android:layout_width="0dp"
         android:layout_height="@dimen/movie_card_height"
         android:elevation="@dimen/tv_show_card_elevation"
@@ -24,7 +24,7 @@
         tools:src="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/tv_show_title"
+        android:id="@+id/tv_show_title_text_view"
         style="@style/TvShowItemTitleTextStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -33,12 +33,12 @@
         android:maxLines="2"
         android:textAllCaps="true"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/image_tv_show_preview"
+        app:layout_constraintTop_toBottomOf="@id/tv_show_preview_image_view"
         tools:text="Мир дикого запада"
         tools:textColor="@color/white" />
 
     <androidx.appcompat.widget.AppCompatRatingBar
-        android:id="@+id/tv_show_rating"
+        android:id="@+id/tv_show_rating_rating_bar"
         style="@style/Base.Widget.AppCompat.RatingBar.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -46,9 +46,9 @@
         android:numStars="5"
         android:progressBackgroundTint="@color/colorControlNormal"
         android:stepSize="0.5"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_show_title"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_show_title_text_view"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tv_show_title"
+        app:layout_constraintTop_toTopOf="@id/tv_show_title_text_view"
         tools:rating="4" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

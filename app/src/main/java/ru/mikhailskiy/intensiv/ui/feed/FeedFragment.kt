@@ -91,7 +91,7 @@ class FeedFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putString("title", movie.title)
+        bundle.putParcelable(ARG_MOVIE, movie)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
@@ -106,7 +106,7 @@ class FeedFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putString("search", searchText)
+        bundle.putString(ARG_SEARCH, searchText)
         findNavController().navigate(R.id.search_dest, bundle, options)
     }
 
@@ -122,5 +122,7 @@ class FeedFragment : Fragment() {
 
     companion object {
         const val API_KEY = BuildConfig.THE_MOVIE_DATABASE_API
+        const val ARG_MOVIE = "arg movie"
+        const val ARG_SEARCH = "arg search"
     }
 }
