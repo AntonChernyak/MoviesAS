@@ -4,12 +4,12 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.movie_details_fragment.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.Movie
+import ru.mikhailskiy.intensiv.loadImage
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE
 
 class MovieDetailsFragment : Fragment() {
@@ -47,7 +47,7 @@ class MovieDetailsFragment : Fragment() {
         studio_text_view.text = movie?.studio
         genre_text_view.text = movie?.genre?.joinToString()
 
-        Picasso.get().load(movie?.posterUrl).into(details_poster_image_view)
+        movie?.posterUrl?.let { details_poster_image_view.loadImage(it) }
 
         val actorsItems = movie?.actors?.map { ActorItem(it) }?.toList()
 
