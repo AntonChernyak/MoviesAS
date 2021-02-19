@@ -8,13 +8,12 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.movie_details_fragment.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.Movie
-import ru.mikhailskiy.intensiv.loadImage
+import ru.mikhailskiy.intensiv.data.movie_model.MovieVO
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE
 
 class MovieDetailsFragment : Fragment() {
 
-    private var movie: Movie? = null
+    private var movieVO: MovieVO? = null
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -22,7 +21,7 @@ class MovieDetailsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            movie = it.getParcelable(ARG_MOVIE)
+            movieVO = it.getParcelable(ARG_MOVIE)
         }
     }
 
@@ -40,18 +39,18 @@ class MovieDetailsFragment : Fragment() {
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.title = ""
         setHasOptionsMenu(true)
+/*
+        details_movie_title_text_view.text = movieVO?.title
+        details_movie_description_text_view.text = movieVO?.description
+        year_text_view.text = movieVO?.year
+        studio_text_view.text = movieVO?.studio
+        genre_text_view.text = movieVO?.genre?.joinToString()
 
-        details_movie_title_text_view.text = movie?.title
-        details_movie_description_text_view.text = movie?.description
-        year_text_view.text = movie?.year
-        studio_text_view.text = movie?.studio
-        genre_text_view.text = movie?.genre?.joinToString()
+        movieVO?.posterUrl?.let { details_poster_image_view.loadImage(it) }
 
-        movie?.posterUrl?.let { details_poster_image_view.loadImage(it) }
+        val actorsItems = movieVO?.actors?.map { ActorItem(it) }?.toList()
 
-        val actorsItems = movie?.actors?.map { ActorItem(it) }?.toList()
-
-        actors_recycler_view.adapter = adapter.apply { actorsItems?.let { addAll(it) } }
+        actors_recycler_view.adapter = adapter.apply { actorsItems?.let { addAll(it) } }*/
         actors_recycler_view.isNestedScrollingEnabled = false
     }
 
@@ -60,10 +59,10 @@ class MovieDetailsFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+/*    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_add_to_favorite -> {
-                movie?.isFavorite = if (movie?.isFavorite!!) {
+                movieVO?.isFavorite = if (movieVO?.isFavorite!!) {
                     item.setIcon(R.drawable.ic_not_favorite)
                     false
                 } else {
@@ -78,15 +77,15 @@ class MovieDetailsFragment : Fragment() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
+    }*/
 
     companion object {
 
         @JvmStatic
-        fun newInstance(movie: Movie) =
+        fun newInstance(movieVO: MovieVO) =
             MovieDetailsFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ARG_MOVIE, movie)
+                    putParcelable(ARG_MOVIE, movieVO)
                 }
             }
     }

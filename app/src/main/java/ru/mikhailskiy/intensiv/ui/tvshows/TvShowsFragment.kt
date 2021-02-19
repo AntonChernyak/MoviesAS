@@ -10,7 +10,7 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.tv_shows_fragment.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.MockRepository
-import ru.mikhailskiy.intensiv.data.Movie
+import ru.mikhailskiy.intensiv.data.movie_model.MovieVO
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE
 
 class TvShowsFragment : Fragment() {
@@ -41,7 +41,7 @@ class TvShowsFragment : Fragment() {
         tv_shows_recycler_view.adapter = adapter.apply { addAll(tvShowsList) }
     }
 
-    private fun openTvShowDetails(movie: Movie) {
+    private fun openTvShowDetails(movieVO: MovieVO) {
         val options = navOptions {
             anim {
                 enter = R.anim.slide_in_right
@@ -52,7 +52,7 @@ class TvShowsFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putParcelable(ARG_MOVIE, movie)
+        bundle.putParcelable(ARG_MOVIE, movieVO)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
@@ -62,10 +62,10 @@ class TvShowsFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(movie: Movie) =
+        fun newInstance(movieVO: MovieVO) =
             TvShowsFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ARG_MOVIE, movie)
+                    putParcelable(ARG_MOVIE, movieVO)
                 }
             }
     }

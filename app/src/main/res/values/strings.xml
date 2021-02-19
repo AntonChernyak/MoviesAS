@@ -34,4 +34,5 @@
     <string name="watch">Смотреть</string>
     <string name="poster">Постер</string>
     <string name="full_hd_label">Отметка full hd</string>
+    <string name="now_playing">Уже в кино</string>
 </resources>

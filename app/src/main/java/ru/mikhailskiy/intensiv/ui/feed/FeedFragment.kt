@@ -2,6 +2,7 @@ package ru.mikhailskiy.intensiv.ui.feed
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
@@ -11,10 +12,15 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import ru.mikhailskiy.intensiv.BuildConfig
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.MockRepository
-import ru.mikhailskiy.intensiv.data.Movie
+import ru.mikhailskiy.intensiv.data.DtoToVoConverter
+import ru.mikhailskiy.intensiv.data.movie_model.MovieResponse
+import ru.mikhailskiy.intensiv.data.movie_model.MovieVO
+import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.afterTextChanged
 import timber.log.Timber
 
@@ -47,40 +53,52 @@ class FeedFragment : Fragment() {
             }
         }
 
-        // Используя Мок-репозиторий получаем фэйковый список фильмов
-        val moviesList = listOf(
-            MainCardContainer(
-                R.string.recommended,
-                MockRepository.getMovies().map {
-                    MovieItem(it) { movie ->
-                        openMovieDetails(
-                            movie
-                        )
-                    }
-                }.toList()
-            )
-        )
-
-        movies_recycler_view.adapter = adapter.apply { addAll(moviesList) }
-
-        // Используя Мок-репозиторий получаем фэйковый список фильмов
-        // Чтобы отобразить второй ряд фильмов
-        val newMoviesList = listOf(
-            MainCardContainer(
-                R.string.upcoming,
-                MockRepository.getMovies().map {
-                    MovieItem(it) { movie ->
-                        openMovieDetails(movie)
-                    }
-                }.toList()
-            )
-        )
-
-        adapter.apply { addAll(newMoviesList) }
-
+        getDataFromNet(MovieApiClient.apiClient.getTopRatedMovies(API_KEY), R.string.recommended)
+        getDataFromNet(MovieApiClient.apiClient.getPopularMovies(API_KEY), R.string.popular)
+        getDataFromNet(MovieApiClient.apiClient.getNowPlayingMovie(API_KEY), R.string.now_playing)
+        getDataFromNet(MovieApiClient.apiClient.getUpcomingMovies(API_KEY), R.string.upcoming)
     }
 
-    private fun openMovieDetails(movie: Movie) {
+    private fun getDataFromNet(apiFunction: Call<MovieResponse>, label: Int) {
+        apiFunction.enqueue(object : Callback<MovieResponse> {
+            override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
+                Toast.makeText(
+                    requireContext(),
+                    "Проверьте соединение с интернетом",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
+                if (response.isSuccessful) {
+                    val moviesVoList = response.body()?.results?.map {
+                        DtoToVoConverter.MovieListDtoConverter(it)
+                    }?.toList()
+
+                    val moviesList = listOf(
+                        moviesVoList?.map {
+                            MovieItem(it) { movie ->
+                                openMovieDetails(movie)
+                            }
+                        }?.let {
+                            MainCardContainer(label, it)
+                        }
+                    )
+
+                    adapter.apply { addAll(moviesList) }
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Ошибка ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                }
+            }
+        })
+    }
+
+    private fun openMovieDetails(movieVO: MovieVO) {
         val options = navOptions {
             anim {
                 enter = R.anim.slide_in_right
@@ -91,7 +109,7 @@ class FeedFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putParcelable(ARG_MOVIE, movie)
+        bundle.putParcelable(ARG_MOVIE, movieVO)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
