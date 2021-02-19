@@ -13,6 +13,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.DtoToVoConverter
+import ru.mikhailskiy.intensiv.data.credits_model.CreditsResponse
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDTO
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsVO
 import ru.mikhailskiy.intensiv.data.movie_model.MovieVO
@@ -51,11 +52,12 @@ class MovieDetailsFragment : Fragment() {
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.title = ""
         setHasOptionsMenu(true)
 
-        getMovieById(movieVoId)
+        getMovieById()
+        addActorsToRecyclerView()
         actors_recycler_view.isNestedScrollingEnabled = false
     }
 
-    private fun getMovieById(id: Int) {
+    private fun getMovieById() {
         MovieApiClient.apiClient.getMovieDetails(movieVoId, API_KEY)
             .enqueue(object : Callback<MovieDetailsDTO> {
                 override fun onFailure(call: Call<MovieDetailsDTO>, t: Throwable) {
@@ -80,8 +82,38 @@ class MovieDetailsFragment : Fragment() {
                         genre_text_view.text = movie?.genres
                         movie?.rating?.let { details_movie_rating_bar.rating = it }
                         movie?.posterPath?.let { details_poster_image_view.loadImage(it) }
-                        //val actorsItems = movieVO?.actors?.map { ActorItem(it) }?.toList()
-                        //actors_recycler_view.adapter = adapter.apply { actorsItems?.let { addAll(it) } }
+                        //addActorsToRecyclerView()
+                    } else Toast.makeText(
+                        requireActivity(),
+                        getString(R.string.error) + response.code(),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            })
+    }
+
+    private fun addActorsToRecyclerView() {
+        MovieApiClient.apiClient.getMovieCredits(movieVoId, API_KEY)
+            .enqueue(object : Callback<CreditsResponse> {
+                override fun onFailure(call: Call<CreditsResponse>, t: Throwable) {
+                    Toast.makeText(
+                        requireActivity(),
+                        getString(R.string.check_net_connection),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                override fun onResponse(
+                    call: Call<CreditsResponse>,
+                    response: Response<CreditsResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val actors = response.body()?.cast?.map {
+                            ActorItem(
+                                DtoToVoConverter.actorConverter(it)
+                            )
+                        }
+                        actors_recycler_view.adapter = adapter.apply { actors?.let { addAll(it) } }
                     } else Toast.makeText(
                         requireActivity(),
                         getString(R.string.error) + response.code(),

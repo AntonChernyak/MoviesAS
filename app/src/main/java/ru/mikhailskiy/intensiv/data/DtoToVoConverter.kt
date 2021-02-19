@@ -1,5 +1,7 @@
 package ru.mikhailskiy.intensiv.data
 
+import ru.mikhailskiy.intensiv.data.credits_model.ActorDto
+import ru.mikhailskiy.intensiv.data.credits_model.ActorVo
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDTO
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsVO
 import ru.mikhailskiy.intensiv.data.movie_model.MovieDTO
@@ -29,6 +31,15 @@ object DtoToVoConverter {
             year = movieDetailsDto.releaseDate.substring(0, 4),
             genres = movieDetailsDto.genres.joinToString { it.name },
             productionCompanies = movieDetailsDto.productionCompanies.joinToString { it.name }
+        )
+    }
+
+    fun actorConverter(actorsDto: ActorDto): ActorVo {
+        return ActorVo(
+            id = actorsDto.id,
+            firstName = actorsDto.name.substringBefore(" "),
+            lastName = actorsDto.name.substringAfter(" "),
+            posterPath = actorsDto.profilePath
         )
     }
 }

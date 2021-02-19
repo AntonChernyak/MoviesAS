@@ -4,6 +4,7 @@ import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import ru.mikhailskiy.intensiv.data.credits_model.CreditsResponse
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDTO
 import ru.mikhailskiy.intensiv.data.movie_model.MovieResponse
 
@@ -50,6 +51,13 @@ interface MovieApiInterface {
         @Query("api_key") apiKey: String,
         @Query("language") language: String = "ru"
     ): Call<MovieDetailsDTO>
+
+    @GET("movie/{movie_id}/credits")
+    fun getMovieCredits(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String,
+        @Query("language") language: String = "ru"
+    ): Call<CreditsResponse>
 
     @GET("movie/{movie_id}/recommendations")
     fun getRecommendationsMovies(
