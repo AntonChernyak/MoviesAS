@@ -35,7 +35,7 @@ object MockRepository {
         for (x in 0..10) {
             val movie = MovieVO(
                 title = "Spider-Man $x",
-                voteAverage = 10.0 - x,
+                rating = (10.0 - x).toFloat(),
                 posterUrl = "https://m.media-amazon.com/images/M/MV5BYTk3MDljOWQtNGI2My00OTEzLTlhYjQtOTQ4ODM2MzUwY2IwXkEyXkFqcGdeQXVyNTIzOTk5ODM@._V1_.jpg"
             )
             moviesList.add(movie)
@@ -50,7 +50,7 @@ object MockRepository {
         for (x in 0..10) {
             val movie = MovieVO(
                 title = "Stranger Things $x",
-                voteAverage = 10.0 - x,
+                rating = (10.0 - x).toFloat(),
                 posterUrl = "https://i.ytimg.com/vi/Qgcj0QJDYEw/maxresdefault.jpg"
             )
             tvShowsList.add(movie)

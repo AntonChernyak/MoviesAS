@@ -1,20 +1,34 @@
 package ru.mikhailskiy.intensiv.data
 
+import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDTO
+import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsVO
 import ru.mikhailskiy.intensiv.data.movie_model.MovieDTO
 import ru.mikhailskiy.intensiv.data.movie_model.MovieVO
 
 object DtoToVoConverter {
 
-    fun MovieListDtoConverter(movieDto: MovieDTO): MovieVO {
+    fun movieDtoConverter(movieDto: MovieDTO): MovieVO {
         return MovieVO(
+            id = movieDto.id,
             title = movieDto.title,
-            //  description = movieDto.overview,
-            voteAverage = movieDto.voteAverage,
-            //  actors = ArrayList(),
-            posterUrl = movieDto.posterPath
-            //  genre = movieDto.genreIds,
-            //  year = movieDto.releaseDate,
-            // studio = ""
+            rating = movieDto.voteAverage.div(2).toFloat(),
+            posterUrl = movieDto.posterPath,
+            backdpopUrl = movieDto.backdropPath,
+            voteCount = movieDto.voteCount
+        )
+    }
+
+    fun movieDetailsConverter(movieDetailsDto: MovieDetailsDTO): MovieDetailsVO {
+        return MovieDetailsVO(
+            id = movieDetailsDto.id,
+            title = movieDetailsDto.title,
+            overview = movieDetailsDto.overview,
+            posterPath = movieDetailsDto.posterPath,
+            voteCount = movieDetailsDto.voteCount,
+            rating = movieDetailsDto.voteAverage.div(2).toFloat(),
+            year = movieDetailsDto.releaseDate.substring(0, 4),
+            genres = movieDetailsDto.genres.joinToString { it.name },
+            productionCompanies = movieDetailsDto.productionCompanies.joinToString { it.name }
         )
     }
 }

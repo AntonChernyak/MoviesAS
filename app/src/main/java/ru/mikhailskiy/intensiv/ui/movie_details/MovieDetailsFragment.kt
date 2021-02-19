@@ -2,18 +2,29 @@ package ru.mikhailskiy.intensiv.ui.movie_details
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.movie_details_fragment.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.data.DtoToVoConverter
+import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDTO
+import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsVO
 import ru.mikhailskiy.intensiv.data.movie_model.MovieVO
-import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE
+import ru.mikhailskiy.intensiv.loadImage
+import ru.mikhailskiy.intensiv.network.MovieApiClient
+import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.API_KEY
+import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
 
 class MovieDetailsFragment : Fragment() {
 
-    private var movieVO: MovieVO? = null
+    private var movieVoId: Int = 1
+    private var movie: MovieDetailsVO? = null
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -21,7 +32,7 @@ class MovieDetailsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            movieVO = it.getParcelable(ARG_MOVIE)
+            movieVoId = it.getInt(ARG_MOVIE_ID)
         }
     }
 
@@ -39,19 +50,45 @@ class MovieDetailsFragment : Fragment() {
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.title = ""
         setHasOptionsMenu(true)
-/*
-        details_movie_title_text_view.text = movieVO?.title
-        details_movie_description_text_view.text = movieVO?.description
-        year_text_view.text = movieVO?.year
-        studio_text_view.text = movieVO?.studio
-        genre_text_view.text = movieVO?.genre?.joinToString()
 
-        movieVO?.posterUrl?.let { details_poster_image_view.loadImage(it) }
-
-        val actorsItems = movieVO?.actors?.map { ActorItem(it) }?.toList()
-
-        actors_recycler_view.adapter = adapter.apply { actorsItems?.let { addAll(it) } }*/
+        getMovieById(movieVoId)
         actors_recycler_view.isNestedScrollingEnabled = false
+    }
+
+    private fun getMovieById(id: Int) {
+        MovieApiClient.apiClient.getMovieDetails(movieVoId, API_KEY)
+            .enqueue(object : Callback<MovieDetailsDTO> {
+                override fun onFailure(call: Call<MovieDetailsDTO>, t: Throwable) {
+                    Toast.makeText(
+                        requireActivity(),
+                        getString(R.string.check_net_connection),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                override fun onResponse(
+                    call: Call<MovieDetailsDTO>,
+                    response: Response<MovieDetailsDTO>
+                ) {
+                    if (response.isSuccessful) {
+                        movie = response.body()?.let { DtoToVoConverter.movieDetailsConverter(it) }
+
+                        details_movie_title_text_view.text = movie?.title
+                        details_movie_description_text_view.text = movie?.overview
+                        year_text_view.text = movie?.year
+                        studio_text_view.text = movie?.productionCompanies
+                        genre_text_view.text = movie?.genres
+                        movie?.rating?.let { details_movie_rating_bar.rating = it }
+                        movie?.posterPath?.let { details_poster_image_view.loadImage(it) }
+                        //val actorsItems = movieVO?.actors?.map { ActorItem(it) }?.toList()
+                        //actors_recycler_view.adapter = adapter.apply { actorsItems?.let { addAll(it) } }
+                    } else Toast.makeText(
+                        requireActivity(),
+                        getString(R.string.error) + response.code(),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -59,10 +96,10 @@ class MovieDetailsFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-/*    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_add_to_favorite -> {
-                movieVO?.isFavorite = if (movieVO?.isFavorite!!) {
+                movie?.isFavorite = if (movie?.isFavorite!!) {
                     item.setIcon(R.drawable.ic_not_favorite)
                     false
                 } else {
@@ -77,7 +114,7 @@ class MovieDetailsFragment : Fragment() {
             }
         }
         return super.onOptionsItemSelected(item)
-    }*/
+    }
 
     companion object {
 
@@ -85,7 +122,7 @@ class MovieDetailsFragment : Fragment() {
         fun newInstance(movieVO: MovieVO) =
             MovieDetailsFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ARG_MOVIE, movieVO)
+                    putInt(ARG_MOVIE_ID, movieVO.id)
                 }
             }
     }

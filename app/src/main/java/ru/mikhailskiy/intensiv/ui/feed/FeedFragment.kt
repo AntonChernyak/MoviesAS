@@ -53,18 +53,26 @@ class FeedFragment : Fragment() {
             }
         }
 
-        getDataFromNet(MovieApiClient.apiClient.getTopRatedMovies(API_KEY), R.string.recommended)
-        getDataFromNet(MovieApiClient.apiClient.getPopularMovies(API_KEY), R.string.popular)
-        getDataFromNet(MovieApiClient.apiClient.getNowPlayingMovie(API_KEY), R.string.now_playing)
-        getDataFromNet(MovieApiClient.apiClient.getUpcomingMovies(API_KEY), R.string.upcoming)
+        getDataFromNet(
+            MovieApiClient.apiClient.getTopRatedMovies(API_KEY),
+            R.string.top_rated,
+            2000
+        )
+        getDataFromNet(MovieApiClient.apiClient.getPopularMovies(API_KEY), R.string.popular, 500)
+        getDataFromNet(
+            MovieApiClient.apiClient.getNowPlayingMovie(API_KEY),
+            R.string.now_playing,
+            0
+        )
+        getDataFromNet(MovieApiClient.apiClient.getUpcomingMovies(API_KEY), R.string.upcoming, 0)
     }
 
-    private fun getDataFromNet(apiFunction: Call<MovieResponse>, label: Int) {
+    private fun getDataFromNet(apiFunction: Call<MovieResponse>, label: Int, voteCount: Int) {
         apiFunction.enqueue(object : Callback<MovieResponse> {
             override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
                 Toast.makeText(
                     requireContext(),
-                    "Проверьте соединение с интернетом",
+                    getString(R.string.check_net_connection),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -72,24 +80,22 @@ class FeedFragment : Fragment() {
             override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
                 if (response.isSuccessful) {
                     val moviesVoList = response.body()?.results?.map {
-                        DtoToVoConverter.MovieListDtoConverter(it)
-                    }?.toList()
+                        DtoToVoConverter.movieDtoConverter(it)
+                    }
 
-                    val moviesList = listOf(
-                        moviesVoList?.map {
-                            MovieItem(it) { movie ->
-                                openMovieDetails(movie)
-                            }
-                        }?.let {
-                            MainCardContainer(label, it)
+                    val moviesList = listOf(moviesVoList?.filter {
+                        it.voteCount >= voteCount
+                    }?.map { movieVo ->
+                        MovieItem(movieVo) {
+                            openMovieDetails(movieVo)
                         }
-                    )
+                    }?.let { MainCardContainer(label, it) })
 
                     adapter.apply { addAll(moviesList) }
                 } else {
                     Toast.makeText(
                         requireContext(),
-                        "Ошибка ${response.code()}",
+                        getString(R.string.error) + response.code(),
                         Toast.LENGTH_SHORT
                     ).show()
 
@@ -109,7 +115,7 @@ class FeedFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putParcelable(ARG_MOVIE, movieVO)
+        bundle.putInt(ARG_MOVIE_ID, movieVO.id)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
@@ -140,7 +146,7 @@ class FeedFragment : Fragment() {
 
     companion object {
         const val API_KEY = BuildConfig.THE_MOVIE_DATABASE_API
-        const val ARG_MOVIE = "arg movie"
+        const val ARG_MOVIE_ID = "arg movie id"
         const val ARG_SEARCH = "arg search"
     }
 }

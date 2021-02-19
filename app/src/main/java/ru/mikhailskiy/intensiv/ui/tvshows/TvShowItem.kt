@@ -18,7 +18,7 @@ class TvShowItem(
         viewHolder.tv_card_content.setOnClickListener {
             onClick.invoke(tvShow)
         }
-        tvShow.posterUrl?.let { viewHolder.tv_show_preview_image_view.loadImage(it) }
+        tvShow.backdpopUrl?.let { viewHolder.tv_show_preview_image_view.loadImage(it) }
     }
 
     override fun getLayout(): Int = R.layout.item_tv_show
