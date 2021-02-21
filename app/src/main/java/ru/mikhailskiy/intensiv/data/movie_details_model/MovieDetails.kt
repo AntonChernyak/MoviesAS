@@ -1,6 +1,6 @@
 package ru.mikhailskiy.intensiv.data.movie_details_model
 
-data class MovieDetailsVO(
+data class MovieDetails(
     val genres: String,
     val id: Int = 0,
     val overview: String? = "",

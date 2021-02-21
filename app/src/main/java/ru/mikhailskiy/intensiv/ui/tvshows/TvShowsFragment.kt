@@ -13,9 +13,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.DtoToVoConverter
+import ru.mikhailskiy.intensiv.data.movie_model.Movie
+import ru.mikhailskiy.intensiv.data.movie_model.MovieDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_model.MovieResponse
-import ru.mikhailskiy.intensiv.data.movie_model.MovieVO
 import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.API_KEY
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
@@ -54,7 +54,7 @@ class TvShowsFragment : Fragment() {
                 ) {
                     if (response.isSuccessful) {
                         val tvShowsVOList =
-                            response.body()?.results?.map { DtoToVoConverter.movieDtoConverter(it) }
+                            response.body()?.results?.map { MovieDtoToVoConverter().toViewObject(it) }
                         val tvShowsItems = tvShowsVOList?.map { tvShow ->
                             TvShowItem(tvShow) { openTvShowDetails(tvShow) }
                         }
@@ -70,7 +70,7 @@ class TvShowsFragment : Fragment() {
             })
     }
 
-    private fun openTvShowDetails(movieVO: MovieVO) {
+    private fun openTvShowDetails(movie: Movie) {
         val options = navOptions {
             anim {
                 enter = R.anim.slide_in_right
@@ -81,7 +81,7 @@ class TvShowsFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putInt(ARG_MOVIE_ID, movieVO.id)
+        bundle.putInt(ARG_MOVIE_ID, movie.id)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
@@ -91,10 +91,10 @@ class TvShowsFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(movieVO: MovieVO) =
+        fun newInstance(movie: Movie) =
             TvShowsFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(ARG_MOVIE_ID, movieVO.id)
+                    putInt(ARG_MOVIE_ID, movie.id)
                 }
             }
     }

@@ -2,7 +2,7 @@ package ru.mikhailskiy.intensiv.data.movie_details_model
 
 import com.google.gson.annotations.SerializedName
 
-data class MovieDetailsDTO(
+data class MovieDetailsDto(
     @SerializedName("genres")
     val genres: List<Genre>,
     val id: Int,

@@ -12,11 +12,12 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.DtoToVoConverter
+import ru.mikhailskiy.intensiv.data.credits_model.ActorDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.credits_model.CreditsResponse
-import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDTO
-import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsVO
-import ru.mikhailskiy.intensiv.data.movie_model.MovieVO
+import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails
+import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDto
+import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDtoToVoConverter
+import ru.mikhailskiy.intensiv.data.movie_model.Movie
 import ru.mikhailskiy.intensiv.loadImage
 import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.API_KEY
@@ -25,7 +26,7 @@ import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
 class MovieDetailsFragment : Fragment() {
 
     private var movieVoId: Int = 1
-    private var movie: MovieDetailsVO? = null
+    private var movie: MovieDetails? = null
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -59,8 +60,8 @@ class MovieDetailsFragment : Fragment() {
 
     private fun getMovieById() {
         MovieApiClient.apiClient.getMovieDetails(movieVoId, API_KEY)
-            .enqueue(object : Callback<MovieDetailsDTO> {
-                override fun onFailure(call: Call<MovieDetailsDTO>, t: Throwable) {
+            .enqueue(object : Callback<MovieDetailsDto> {
+                override fun onFailure(call: Call<MovieDetailsDto>, t: Throwable) {
                     Toast.makeText(
                         requireActivity(),
                         getString(R.string.check_net_connection),
@@ -69,11 +70,12 @@ class MovieDetailsFragment : Fragment() {
                 }
 
                 override fun onResponse(
-                    call: Call<MovieDetailsDTO>,
-                    response: Response<MovieDetailsDTO>
+                    call: Call<MovieDetailsDto>,
+                    response: Response<MovieDetailsDto>
                 ) {
                     if (response.isSuccessful) {
-                        movie = response.body()?.let { DtoToVoConverter.movieDetailsConverter(it) }
+                        movie =
+                            response.body()?.let { MovieDetailsDtoToVoConverter().toViewObject(it) }
 
                         details_movie_title_text_view.text = movie?.title
                         details_movie_description_text_view.text = movie?.overview
@@ -110,7 +112,7 @@ class MovieDetailsFragment : Fragment() {
                     if (response.isSuccessful) {
                         val actors = response.body()?.cast?.map {
                             ActorItem(
-                                DtoToVoConverter.actorConverter(it)
+                                ActorDtoToVoConverter().toViewObject(it)
                             )
                         }
                         actors_recycler_view.adapter = adapter.apply { actors?.let { addAll(it) } }
@@ -151,10 +153,10 @@ class MovieDetailsFragment : Fragment() {
     companion object {
 
         @JvmStatic
-        fun newInstance(movieVO: MovieVO) =
+        fun newInstance(movie: Movie) =
             MovieDetailsFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(ARG_MOVIE_ID, movieVO.id)
+                    putInt(ARG_MOVIE_ID, movie.id)
                 }
             }
     }

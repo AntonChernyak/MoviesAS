@@ -17,9 +17,9 @@ import retrofit2.Callback
 import retrofit2.Response
 import ru.mikhailskiy.intensiv.BuildConfig
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.DtoToVoConverter
+import ru.mikhailskiy.intensiv.data.movie_model.Movie
+import ru.mikhailskiy.intensiv.data.movie_model.MovieDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_model.MovieResponse
-import ru.mikhailskiy.intensiv.data.movie_model.MovieVO
 import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.afterTextChanged
 import timber.log.Timber
@@ -80,7 +80,7 @@ class FeedFragment : Fragment() {
             override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
                 if (response.isSuccessful) {
                     val moviesVoList = response.body()?.results?.map {
-                        DtoToVoConverter.movieDtoConverter(it)
+                        MovieDtoToVoConverter().toViewObject(it)
                     }
 
                     val moviesList = listOf(moviesVoList?.filter {
@@ -104,7 +104,7 @@ class FeedFragment : Fragment() {
         })
     }
 
-    private fun openMovieDetails(movieVO: MovieVO) {
+    private fun openMovieDetails(movie: Movie) {
         val options = navOptions {
             anim {
                 enter = R.anim.slide_in_right
@@ -115,7 +115,7 @@ class FeedFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putInt(ARG_MOVIE_ID, movieVO.id)
+        bundle.putInt(ARG_MOVIE_ID, movie.id)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
