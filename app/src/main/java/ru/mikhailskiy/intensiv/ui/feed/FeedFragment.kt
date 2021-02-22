@@ -54,17 +54,17 @@ class FeedFragment : Fragment() {
         }
 
         getDataFromNet(
-            MovieApiClient.apiClient.getTopRatedMovies(API_KEY),
+            MovieApiClient.apiClient.getTopRatedMovies(),
             R.string.top_rated,
             2000
         )
-        getDataFromNet(MovieApiClient.apiClient.getPopularMovies(API_KEY), R.string.popular, 500)
+        getDataFromNet(MovieApiClient.apiClient.getPopularMovies(), R.string.popular, 500)
         getDataFromNet(
-            MovieApiClient.apiClient.getNowPlayingMovie(API_KEY),
+            MovieApiClient.apiClient.getNowPlayingMovie(),
             R.string.now_playing,
             0
         )
-        getDataFromNet(MovieApiClient.apiClient.getUpcomingMovies(API_KEY), R.string.upcoming, 0)
+        getDataFromNet(MovieApiClient.apiClient.getUpcomingMovies(), R.string.upcoming, 0)
     }
 
     private fun getDataFromNet(apiFunction: Call<MovieResponse>, label: Int, voteCount: Int) {

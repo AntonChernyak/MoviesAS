@@ -20,7 +20,6 @@ import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDtoToVoConve
 import ru.mikhailskiy.intensiv.data.movie_model.Movie
 import ru.mikhailskiy.intensiv.loadImage
 import ru.mikhailskiy.intensiv.network.MovieApiClient
-import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.API_KEY
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
 
 class MovieDetailsFragment : Fragment() {
@@ -59,7 +58,7 @@ class MovieDetailsFragment : Fragment() {
     }
 
     private fun getMovieById() {
-        MovieApiClient.apiClient.getMovieDetails(movieVoId, API_KEY)
+        MovieApiClient.apiClient.getMovieDetails(movieVoId)
             .enqueue(object : Callback<MovieDetailsDto> {
                 override fun onFailure(call: Call<MovieDetailsDto>, t: Throwable) {
                     Toast.makeText(
@@ -84,7 +83,6 @@ class MovieDetailsFragment : Fragment() {
                         genre_text_view.text = movie?.genres
                         movie?.rating?.let { details_movie_rating_bar.rating = it }
                         movie?.posterPath?.let { details_poster_image_view.loadImage(it) }
-                        //addActorsToRecyclerView()
                     } else Toast.makeText(
                         requireActivity(),
                         getString(R.string.error) + response.code(),
@@ -95,7 +93,7 @@ class MovieDetailsFragment : Fragment() {
     }
 
     private fun addActorsToRecyclerView() {
-        MovieApiClient.apiClient.getMovieCredits(movieVoId, API_KEY)
+        MovieApiClient.apiClient.getMovieCredits(movieVoId)
             .enqueue(object : Callback<CreditsResponse> {
                 override fun onFailure(call: Call<CreditsResponse>, t: Throwable) {
                     Toast.makeText(

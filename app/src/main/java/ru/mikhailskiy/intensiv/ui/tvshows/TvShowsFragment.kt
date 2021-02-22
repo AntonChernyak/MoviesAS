@@ -17,7 +17,6 @@ import ru.mikhailskiy.intensiv.data.movie_model.Movie
 import ru.mikhailskiy.intensiv.data.movie_model.MovieDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_model.MovieResponse
 import ru.mikhailskiy.intensiv.network.MovieApiClient
-import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.API_KEY
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
 
 class TvShowsFragment : Fragment() {
@@ -38,7 +37,7 @@ class TvShowsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        MovieApiClient.apiClient.getPopularTvShowsList(API_KEY)
+        MovieApiClient.apiClient.getPopularTvShowsList()
             .enqueue(object : Callback<MovieResponse> {
                 override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
                     Toast.makeText(
