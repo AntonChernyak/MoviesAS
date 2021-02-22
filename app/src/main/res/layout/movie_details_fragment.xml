@@ -113,7 +113,7 @@
                 android:layout_marginTop="@dimen/material_margin_small"
                 android:text="@string/genre"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/studio_label" />
+                app:layout_constraintTop_toBottomOf="@id/studio_text_view" />
 
             <TextView
                 android:id="@+id/year_label"
@@ -123,17 +123,18 @@
                 android:layout_marginTop="@dimen/material_margin_small"
                 android:text="@string/year"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/genre_label" />
+                app:layout_constraintTop_toBottomOf="@id/genre_text_view" />
 
             <TextView
                 android:id="@+id/studio_text_view"
                 style="@style/MovieDetailsPlainText"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/material_margin_normal"
-                app:layout_constraintBottom_toBottomOf="@id/studio_label"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@id/barrier"
-                tools:text="Название студии" />
+                app:layout_constraintTop_toTopOf="@+id/studio_label"
+                tools:text="Название студии, Название студии, Название студии" />
 
             <TextView
                 android:id="@+id/genre_text_view"
@@ -141,8 +142,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/material_margin_normal"
-                app:layout_constraintBottom_toBottomOf="@id/genre_label"
                 app:layout_constraintStart_toStartOf="@id/barrier"
+                app:layout_constraintTop_toTopOf="@+id/genre_label"
                 tools:text="Жанр 1, Жанр 2" />
 
             <TextView
@@ -153,6 +154,7 @@
                 android:layout_marginStart="@dimen/material_margin_normal"
                 app:layout_constraintBottom_toBottomOf="@id/year_label"
                 app:layout_constraintStart_toStartOf="@id/barrier"
+                app:layout_constraintTop_toTopOf="@id/year_label"
                 tools:text="1970" />
 
 

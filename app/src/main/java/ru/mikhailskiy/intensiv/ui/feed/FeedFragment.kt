@@ -2,6 +2,7 @@ package ru.mikhailskiy.intensiv.ui.feed
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
@@ -11,10 +12,15 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import ru.mikhailskiy.intensiv.BuildConfig
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.MockRepository
-import ru.mikhailskiy.intensiv.data.Movie
+import ru.mikhailskiy.intensiv.data.movie_model.Movie
+import ru.mikhailskiy.intensiv.data.movie_model.MovieDtoToVoConverter
+import ru.mikhailskiy.intensiv.data.movie_model.MovieResponse
+import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.afterTextChanged
 import timber.log.Timber
 
@@ -47,37 +53,55 @@ class FeedFragment : Fragment() {
             }
         }
 
-        // Используя Мок-репозиторий получаем фэйковый список фильмов
-        val moviesList = listOf(
-            MainCardContainer(
-                R.string.recommended,
-                MockRepository.getMovies().map {
-                    MovieItem(it) { movie ->
-                        openMovieDetails(
-                            movie
-                        )
-                    }
-                }.toList()
-            )
+        getDataFromNet(
+            MovieApiClient.apiClient.getTopRatedMovies(),
+            R.string.top_rated,
+            2000
         )
-
-        movies_recycler_view.adapter = adapter.apply { addAll(moviesList) }
-
-        // Используя Мок-репозиторий получаем фэйковый список фильмов
-        // Чтобы отобразить второй ряд фильмов
-        val newMoviesList = listOf(
-            MainCardContainer(
-                R.string.upcoming,
-                MockRepository.getMovies().map {
-                    MovieItem(it) { movie ->
-                        openMovieDetails(movie)
-                    }
-                }.toList()
-            )
+        getDataFromNet(MovieApiClient.apiClient.getPopularMovies(), R.string.popular, 500)
+        getDataFromNet(
+            MovieApiClient.apiClient.getNowPlayingMovie(),
+            R.string.now_playing,
+            0
         )
+        getDataFromNet(MovieApiClient.apiClient.getUpcomingMovies(), R.string.upcoming, 0)
+    }
 
-        adapter.apply { addAll(newMoviesList) }
+    private fun getDataFromNet(apiFunction: Call<MovieResponse>, label: Int, voteCount: Int) {
+        apiFunction.enqueue(object : Callback<MovieResponse> {
+            override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.check_net_connection),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
 
+            override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
+                if (response.isSuccessful) {
+                    val moviesVoList = response.body()?.results?.map {
+                        MovieDtoToVoConverter().toViewObject(it)
+                    }
+
+                    val moviesList = listOf(moviesVoList?.filter {
+                        it.voteCount >= voteCount
+                    }?.map { movieVo ->
+                        MovieItem(movieVo) {
+                            openMovieDetails(movieVo)
+                        }
+                    }?.let { MainCardContainer(label, it) })
+
+                    adapter.apply { addAll(moviesList) }
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.error) + response.code(),
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                }
+            }
+        })
     }
 
     private fun openMovieDetails(movie: Movie) {
@@ -91,7 +115,7 @@ class FeedFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putParcelable(ARG_MOVIE, movie)
+        bundle.putInt(ARG_MOVIE_ID, movie.id)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
@@ -122,7 +146,7 @@ class FeedFragment : Fragment() {
 
     companion object {
         const val API_KEY = BuildConfig.THE_MOVIE_DATABASE_API
-        const val ARG_MOVIE = "arg movie"
+        const val ARG_MOVIE_ID = "arg movie id"
         const val ARG_SEARCH = "arg search"
     }
 }

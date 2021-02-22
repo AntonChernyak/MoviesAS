@@ -4,7 +4,7 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
 import kotlinx.android.synthetic.main.item_with_text.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.Movie
+import ru.mikhailskiy.intensiv.data.movie_model.Movie
 import ru.mikhailskiy.intensiv.loadImage
 
 class MovieItem(
@@ -20,6 +20,6 @@ class MovieItem(
         viewHolder.container_content.setOnClickListener {
             onClick.invoke(content)
         }
-        viewHolder.image_preview.loadImage(content.posterUrl)
+        content.posterUrl?.let { viewHolder.image_preview.loadImage(it) }
     }
 }

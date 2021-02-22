@@ -4,7 +4,7 @@
     <string name="search_hint">Введите название</string>
 
     <string name="main_title">Что будете смотреть\nсегодня?</string>
-    <string name="recommended">Рекомендуем</string>
+    <string name="top_rated">Высокий рейтинг</string>
     <string name="popular">Популярные</string>
     <string name="upcoming">Новинки</string>
 
@@ -34,4 +34,7 @@
     <string name="watch">Смотреть</string>
     <string name="poster">Постер</string>
     <string name="full_hd_label">Отметка full hd</string>
+    <string name="now_playing">Уже в кино</string>
+    <string name="check_net_connection">Проверьте подключение к сети</string>
+    <string name="error">\"Ошибка \"</string>
 </resources>
