@@ -1,6 +1,6 @@
-package ru.mikhailskiy.intensiv.data.movie_model
+package ru.mikhailskiy.intensiv.data.movie_feed_model
 
-data class Movie(
+data class MovieFeed(
     val id: Int = 0,
     val title: String? = "",
     val rating: Float = 0.0f,

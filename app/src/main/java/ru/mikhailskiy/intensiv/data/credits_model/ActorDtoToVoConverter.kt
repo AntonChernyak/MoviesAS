@@ -11,5 +11,4 @@ class ActorDtoToVoConverter : ViewObjectMapper<Actor, ActorDto> {
             posterPath = dto.profilePath
         )
     }
-
 }

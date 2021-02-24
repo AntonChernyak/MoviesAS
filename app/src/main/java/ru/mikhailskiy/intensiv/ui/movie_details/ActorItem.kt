@@ -5,7 +5,7 @@ import com.xwray.groupie.kotlinandroidextensions.Item
 import kotlinx.android.synthetic.main.item_actor.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.credits_model.Actor
-import ru.mikhailskiy.intensiv.loadImage
+import ru.mikhailskiy.intensiv.ui.loadImage
 
 class ActorItem(private val content: Actor) : Item() {
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {

@@ -4,12 +4,12 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
 import kotlinx.android.synthetic.main.item_tv_show.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.movie_model.Movie
-import ru.mikhailskiy.intensiv.loadImage
+import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeed
+import ru.mikhailskiy.intensiv.ui.loadImage
 
 class TvShowItem(
-    private val tvShow: Movie,
-    private val onClick: (movie: Movie) -> Unit
+    private val tvShow: MovieFeed,
+    private val onClick: (movieFeed: MovieFeed) -> Unit
 ): Item() {
 
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {

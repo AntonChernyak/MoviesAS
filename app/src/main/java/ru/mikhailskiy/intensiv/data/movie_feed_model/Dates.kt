@@ -1,4 +1,4 @@
-package ru.mikhailskiy.intensiv.data.movie_model
+package ru.mikhailskiy.intensiv.data.movie_feed_model
 
 data class Dates(
     val maximum: String = "",
