@@ -5,7 +5,7 @@ import com.xwray.groupie.kotlinandroidextensions.Item
 import kotlinx.android.synthetic.main.item_tv_show.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeed
-import ru.mikhailskiy.intensiv.ui.loadImage
+import ru.mikhailskiy.intensiv.extensions.loadImage
 
 class TvShowItem(
     private val tvShow: MovieFeed,
@@ -18,7 +18,7 @@ class TvShowItem(
         viewHolder.tv_card_content.setOnClickListener {
             onClick.invoke(tvShow)
         }
-        tvShow.backdpopUrl?.let { viewHolder.tv_show_preview_image_view.loadImage(it) }
+        tvShow.backdropUrl?.let { viewHolder.tv_show_preview_image_view.loadImage(it) }
     }
 
     override fun getLayout(): Int = R.layout.item_tv_show

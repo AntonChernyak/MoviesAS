@@ -61,7 +61,7 @@ class TvShowsFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        compositeDisposable.dispose()
+        compositeDisposable.clear()
     }
 
     private fun openTvShowDetails(movieFeed: MovieFeed) {

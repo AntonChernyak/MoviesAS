@@ -5,7 +5,7 @@ import com.xwray.groupie.kotlinandroidextensions.Item
 import kotlinx.android.synthetic.main.item_with_text.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeed
-import ru.mikhailskiy.intensiv.ui.loadImage
+import ru.mikhailskiy.intensiv.extensions.loadImage
 
 class MoviePreviewItem(
     private val content: MovieFeed,

@@ -20,8 +20,8 @@ import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeed
 import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeedDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeedResponse
+import ru.mikhailskiy.intensiv.extensions.afterTextChanged
 import ru.mikhailskiy.intensiv.network.MovieApiClient
-import ru.mikhailskiy.intensiv.ui.afterTextChanged
 import timber.log.Timber
 
 class FeedFragment : Fragment() {
@@ -140,7 +140,7 @@ class FeedFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         search_toolbar.clear()
-        compositeDisposable.dispose()
+        compositeDisposable.clear()
     }
 
 

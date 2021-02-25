@@ -7,8 +7,10 @@ import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.core.view.isVisible
+import io.reactivex.Observable
 import kotlinx.android.synthetic.main.search_toolbar.view.*
 import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.extensions.afterTextChanged
 
 class SearchBar @JvmOverloads constructor(
     context: Context,
@@ -38,6 +40,14 @@ class SearchBar @JvmOverloads constructor(
 
     fun clear() {
         this.editText.setText("")
+    }
+
+    fun getObservableSearch(): Observable<String> {
+        return Observable.create { emitter ->
+            this.editText.afterTextChanged { query ->
+                emitter.onNext(query.toString().trim())
+            }
+        }
     }
 
     override fun onFinishInflate() {

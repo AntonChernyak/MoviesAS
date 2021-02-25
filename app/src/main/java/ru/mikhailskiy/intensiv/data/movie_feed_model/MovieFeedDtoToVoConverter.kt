@@ -1,17 +1,19 @@
 package ru.mikhailskiy.intensiv.data.movie_feed_model
 
 import ru.mikhailskiy.intensiv.data.ViewObjectMapper
-import ru.mikhailskiy.intensiv.data.voteAverageToRating
+import ru.mikhailskiy.intensiv.extensions.voteAverageToRating
 
 class MovieFeedDtoToVoConverter : ViewObjectMapper<MovieFeed, MovieFeedDto> {
-    override fun toViewObject(feedDto: MovieFeedDto): MovieFeed {
+    override fun toViewObject(dto: MovieFeedDto): MovieFeed {
         return MovieFeed(
-            id = feedDto.id,
-            title = feedDto.title,
-            rating = feedDto.voteAverage.voteAverageToRating(),
-            posterUrl = feedDto.posterPath,
-            backdpopUrl = feedDto.backdropPath,
-            voteCount = feedDto.voteCount
+            id = dto.id,
+            title = dto.title,
+            rating = dto.voteAverage.voteAverageToRating(),
+            posterUrl = dto.posterPath,
+            backdropUrl = dto.backdropPath,
+            releaseYear = dto.releaseDate.substring(0..3),
+            description = dto.overview,
+            voteCount = dto.voteCount
         )
     }
 }

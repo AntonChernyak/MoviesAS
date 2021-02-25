@@ -1,4 +1,4 @@
-package ru.mikhailskiy.intensiv.ui
+package ru.mikhailskiy.intensiv.extensions
 
 import android.widget.ImageView
 import com.squareup.picasso.Picasso

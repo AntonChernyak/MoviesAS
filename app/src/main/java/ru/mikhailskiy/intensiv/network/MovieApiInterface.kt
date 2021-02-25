@@ -9,8 +9,6 @@ import ru.mikhailskiy.intensiv.BuildConfig
 import ru.mikhailskiy.intensiv.data.credits_model.CreditsResponse
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDto
 import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeedResponse
-import ru.mikhailskiy.intensiv.data.movie_search_model.MovieSearchResponse
-
 
 interface MovieApiInterface {
 
@@ -68,7 +66,7 @@ interface MovieApiInterface {
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("query") query: String
-    ): Observable<MovieSearchResponse>
+    ): Observable<MovieFeedResponse>
 
     /*
     @GET("movie/{movie_id}/recommendations")
