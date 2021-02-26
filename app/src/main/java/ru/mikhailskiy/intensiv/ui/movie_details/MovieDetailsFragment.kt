@@ -7,9 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.movie_details_fragment.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.credits_model.ActorDtoToVoConverter
@@ -17,6 +15,7 @@ import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeed
 import ru.mikhailskiy.intensiv.extensions.loadImage
+import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
 
@@ -59,9 +58,8 @@ class MovieDetailsFragment : Fragment() {
     private fun getMovieById() {
         compositeDisposable.add(
             MovieApiClient.apiClient.getMovieDetails(movieVoId)
-                .subscribeOn(Schedulers.io())
                 .map { MovieDetailsDtoToVoConverter().toViewObject(it) }
-                .observeOn(AndroidSchedulers.mainThread())
+                .threadSwitch()
                 .subscribe({ movieDetails ->
                     movie = movieDetails
 
@@ -85,9 +83,8 @@ class MovieDetailsFragment : Fragment() {
     private fun addActorsToRecyclerView() {
         compositeDisposable.add(
             MovieApiClient.apiClient.getMovieCredits(movieVoId)
-                .subscribeOn(Schedulers.io())
                 .map { ActorDtoToVoConverter().toViewObject(it.cast) }
-                .observeOn(AndroidSchedulers.mainThread())
+                .threadSwitch()
                 .subscribe({ creditsResponse ->
                     val actors = creditsResponse.map {
                         ActorItem(it)

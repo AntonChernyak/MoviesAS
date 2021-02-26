@@ -8,13 +8,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.tv_shows_fragment.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeed
 import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeedDtoToVoConverter
+import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
 
@@ -39,9 +38,8 @@ class TvShowsFragment : Fragment() {
 
         compositeDisposable.add(
             MovieApiClient.apiClient.getPopularTvShowsList()
-                .subscribeOn(Schedulers.io())
                 .map { it.results?.let { it1 -> MovieFeedDtoToVoConverter().toViewObject(it1) } }
-                .observeOn(AndroidSchedulers.mainThread())
+                .threadSwitch()
                 .subscribe({ tvShowsVOList ->
                     val tvShowsItems = tvShowsVOList?.map { tvShow ->
                         TvShowItem(tvShow) { openTvShowDetails(tvShow) }

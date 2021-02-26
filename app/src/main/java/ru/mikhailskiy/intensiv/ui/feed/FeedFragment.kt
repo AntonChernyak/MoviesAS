@@ -10,9 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
@@ -21,6 +19,7 @@ import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeed
 import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeedDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeedResponse
 import ru.mikhailskiy.intensiv.extensions.afterTextChanged
+import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
 import timber.log.Timber
 
@@ -79,13 +78,12 @@ class FeedFragment : Fragment() {
     private fun getDataFromNet(apiFunction: Single<MovieFeedResponse>, label: Int, voteCount: Int) {
         compositeDisposable.add(
             apiFunction
-                .subscribeOn(Schedulers.io())
                 .map { movieResponse ->
                     movieResponse.results?.let { dtoList ->
                         MovieFeedDtoToVoConverter().toViewObject(dtoList)
                     }
                 }
-                .observeOn(AndroidSchedulers.mainThread())
+                .threadSwitch()
                 .subscribe({ moviesVoList ->
                     val moviesList = listOf(moviesVoList
                         ?.filter {
