@@ -43,8 +43,8 @@ class WatchlistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        movies_recycler_view.layoutManager = GridLayoutManager(context, 4)
-        movies_recycler_view.adapter = adapter.apply { addAll(listOf()) }
+        movies_search_recycler_view.layoutManager = GridLayoutManager(context, 4)
+        movies_search_recycler_view.adapter = adapter.apply { addAll(listOf()) }
 
         val moviesList =
             MockRepository.getMovies().map {
@@ -53,7 +53,7 @@ class WatchlistFragment : Fragment() {
                 ) { movie -> }
             }.toList()
 
-        movies_recycler_view.adapter = adapter.apply { addAll(moviesList) }
+        movies_search_recycler_view.adapter = adapter.apply { addAll(moviesList) }
     }
 
     companion object {

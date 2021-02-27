@@ -17,7 +17,6 @@
         android:id="@+id/image_preview"
         android:layout_width="@dimen/movie_card_width"
         android:layout_height="@dimen/movie_card_height"
-        android:scaleType="centerCrop"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize10Percent"
         tools:background="@color/white"
         tools:src="@drawable/ic_avatar" />

@@ -7,23 +7,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.movie_details_fragment.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.credits_model.ActorDtoToVoConverter
-import ru.mikhailskiy.intensiv.data.credits_model.CreditsResponse
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails
-import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDto
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDtoToVoConverter
-import ru.mikhailskiy.intensiv.data.movie_model.Movie
-import ru.mikhailskiy.intensiv.loadImage
+import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeed
+import ru.mikhailskiy.intensiv.extensions.loadImage
+import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
 
 class MovieDetailsFragment : Fragment() {
 
+    private val compositeDisposable = CompositeDisposable()
     private var movieVoId: Int = 1
     private var movie: MovieDetails? = null
     private val adapter by lazy {
@@ -58,69 +56,53 @@ class MovieDetailsFragment : Fragment() {
     }
 
     private fun getMovieById() {
-        MovieApiClient.apiClient.getMovieDetails(movieVoId)
-            .enqueue(object : Callback<MovieDetailsDto> {
-                override fun onFailure(call: Call<MovieDetailsDto>, t: Throwable) {
+        compositeDisposable.add(
+            MovieApiClient.apiClient.getMovieDetails(movieVoId)
+                .map { MovieDetailsDtoToVoConverter().toViewObject(it) }
+                .threadSwitch()
+                .subscribe({ movieDetails ->
+                    movie = movieDetails
+
+                    details_movie_title_text_view.text = movie?.title
+                    details_movie_description_text_view.text = movie?.overview
+                    year_text_view.text = movie?.year
+                    studio_text_view.text = movie?.productionCompanies
+                    genre_text_view.text = movie?.genres
+                    movie?.rating?.let { details_movie_rating_bar.rating = it }
+                    movie?.posterPath?.let { details_poster_image_view.loadImage(it) }
+                }, { e ->
                     Toast.makeText(
                         requireActivity(),
-                        getString(R.string.check_net_connection),
+                        getString(R.string.error) + e.message,
                         Toast.LENGTH_SHORT
                     ).show()
-                }
-
-                override fun onResponse(
-                    call: Call<MovieDetailsDto>,
-                    response: Response<MovieDetailsDto>
-                ) {
-                    if (response.isSuccessful) {
-                        movie =
-                            response.body()?.let { MovieDetailsDtoToVoConverter().toViewObject(it) }
-
-                        details_movie_title_text_view.text = movie?.title
-                        details_movie_description_text_view.text = movie?.overview
-                        year_text_view.text = movie?.year
-                        studio_text_view.text = movie?.productionCompanies
-                        genre_text_view.text = movie?.genres
-                        movie?.rating?.let { details_movie_rating_bar.rating = it }
-                        movie?.posterPath?.let { details_poster_image_view.loadImage(it) }
-                    } else Toast.makeText(
-                        requireActivity(),
-                        getString(R.string.error) + response.code(),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+                })
+        )
     }
 
     private fun addActorsToRecyclerView() {
-        MovieApiClient.apiClient.getMovieCredits(movieVoId)
-            .enqueue(object : Callback<CreditsResponse> {
-                override fun onFailure(call: Call<CreditsResponse>, t: Throwable) {
+        compositeDisposable.add(
+            MovieApiClient.apiClient.getMovieCredits(movieVoId)
+                .map { ActorDtoToVoConverter().toViewObject(it.cast) }
+                .threadSwitch()
+                .subscribe({ creditsResponse ->
+                    val actors = creditsResponse.map {
+                        ActorItem(it)
+                    }
+                    actors_recycler_view.adapter = adapter.apply { addAll(actors) }
+                }, { error ->
                     Toast.makeText(
                         requireActivity(),
-                        getString(R.string.check_net_connection),
+                        getString(R.string.error) + error.message,
                         Toast.LENGTH_SHORT
                     ).show()
-                }
+                })
+        )
+    }
 
-                override fun onResponse(
-                    call: Call<CreditsResponse>,
-                    response: Response<CreditsResponse>
-                ) {
-                    if (response.isSuccessful) {
-                        val actors = response.body()?.cast?.map {
-                            ActorItem(
-                                ActorDtoToVoConverter().toViewObject(it)
-                            )
-                        }
-                        actors_recycler_view.adapter = adapter.apply { actors?.let { addAll(it) } }
-                    } else Toast.makeText(
-                        requireActivity(),
-                        getString(R.string.error) + response.code(),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+    override fun onStop() {
+        super.onStop()
+        compositeDisposable.clear()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -151,10 +133,10 @@ class MovieDetailsFragment : Fragment() {
     companion object {
 
         @JvmStatic
-        fun newInstance(movie: Movie) =
+        fun newInstance(movieFeed: MovieFeed) =
             MovieDetailsFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(ARG_MOVIE_ID, movie.id)
+                    putInt(ARG_MOVIE_ID, movieFeed.id)
                 }
             }
     }

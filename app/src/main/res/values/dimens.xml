@@ -22,5 +22,7 @@
     <dimen name="tv_show_card_elevation">10dp</dimen>
     <dimen name="tv_show_card_margin">10dp</dimen>
     <dimen name="actor_photo_size">48dp</dimen>
+    <dimen name="search_poster_width">107dp</dimen>
+    <dimen name="search_poster_height">150dp</dimen>
 
 </resources>

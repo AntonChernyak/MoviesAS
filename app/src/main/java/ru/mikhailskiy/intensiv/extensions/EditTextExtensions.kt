@@ -1,4 +1,4 @@
-package ru.mikhailskiy.intensiv.ui
+package ru.mikhailskiy.intensiv.extensions
 
 import android.text.Editable
 import android.widget.EditText

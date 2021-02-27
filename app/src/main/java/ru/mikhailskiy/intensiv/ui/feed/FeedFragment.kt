@@ -9,23 +9,23 @@ import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import ru.mikhailskiy.intensiv.BuildConfig
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.movie_model.Movie
-import ru.mikhailskiy.intensiv.data.movie_model.MovieDtoToVoConverter
-import ru.mikhailskiy.intensiv.data.movie_model.MovieResponse
+import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeed
+import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeedDtoToVoConverter
+import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeedResponse
+import ru.mikhailskiy.intensiv.extensions.afterTextChanged
+import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
-import ru.mikhailskiy.intensiv.ui.afterTextChanged
 import timber.log.Timber
 
 class FeedFragment : Fragment() {
 
+    private val compositeDisposable = CompositeDisposable()
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -43,8 +43,8 @@ class FeedFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Добавляем recyclerView
-        movies_recycler_view.layoutManager = LinearLayoutManager(context)
-        movies_recycler_view.adapter = adapter.apply { addAll(listOf()) }
+        movies_search_recycler_view.layoutManager = LinearLayoutManager(context)
+        movies_search_recycler_view.adapter = adapter.apply { addAll(listOf()) }
 
         search_toolbar.search_edit_text.afterTextChanged {
             Timber.d(it.toString())
@@ -58,53 +58,54 @@ class FeedFragment : Fragment() {
             R.string.top_rated,
             2000
         )
-        getDataFromNet(MovieApiClient.apiClient.getPopularMovies(), R.string.popular, 500)
+        getDataFromNet(
+            MovieApiClient.apiClient.getPopularMovies(),
+            R.string.popular,
+            500
+        )
         getDataFromNet(
             MovieApiClient.apiClient.getNowPlayingMovie(),
             R.string.now_playing,
             0
         )
-        getDataFromNet(MovieApiClient.apiClient.getUpcomingMovies(), R.string.upcoming, 0)
+        getDataFromNet(
+            MovieApiClient.apiClient.getUpcomingMovies(),
+            R.string.upcoming,
+            0
+        )
     }
 
-    private fun getDataFromNet(apiFunction: Call<MovieResponse>, label: Int, voteCount: Int) {
-        apiFunction.enqueue(object : Callback<MovieResponse> {
-            override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.check_net_connection),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-            override fun onResponse(call: Call<MovieResponse>, response: Response<MovieResponse>) {
-                if (response.isSuccessful) {
-                    val moviesVoList = response.body()?.results?.map {
-                        MovieDtoToVoConverter().toViewObject(it)
+    private fun getDataFromNet(apiFunction: Single<MovieFeedResponse>, label: Int, voteCount: Int) {
+        compositeDisposable.add(
+            apiFunction
+                .map { movieResponse ->
+                    movieResponse.results?.let { dtoList ->
+                        MovieFeedDtoToVoConverter().toViewObject(dtoList)
                     }
-
-                    val moviesList = listOf(moviesVoList?.filter {
-                        it.voteCount >= voteCount
-                    }?.map { movieVo ->
-                        MovieItem(movieVo) {
-                            openMovieDetails(movieVo)
-                        }
-                    }?.let { MainCardContainer(label, it) })
+                }
+                .threadSwitch()
+                .subscribe({ moviesVoList ->
+                    val moviesList = listOf(moviesVoList
+                        ?.filter {
+                            it.voteCount >= voteCount
+                        }?.map { movieVo ->
+                            MovieItem(movieVo) {
+                                openMovieDetails(movieVo)
+                            }
+                        }?.let { MainCardContainer(label, it) })
 
                     adapter.apply { addAll(moviesList) }
-                } else {
+                }, { e ->
                     Toast.makeText(
                         requireContext(),
-                        getString(R.string.error) + response.code(),
+                        getString(R.string.error) + e.message,
                         Toast.LENGTH_SHORT
                     ).show()
-
-                }
-            }
-        })
+                })
+        )
     }
 
-    private fun openMovieDetails(movie: Movie) {
+    private fun openMovieDetails(movieFeed: MovieFeed) {
         val options = navOptions {
             anim {
                 enter = R.anim.slide_in_right
@@ -115,7 +116,7 @@ class FeedFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putInt(ARG_MOVIE_ID, movie.id)
+        bundle.putInt(ARG_MOVIE_ID, movieFeed.id)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
@@ -137,6 +138,7 @@ class FeedFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         search_toolbar.clear()
+        compositeDisposable.clear()
     }
 
 
@@ -145,7 +147,6 @@ class FeedFragment : Fragment() {
     }
 
     companion object {
-        const val API_KEY = BuildConfig.THE_MOVIE_DATABASE_API
         const val ARG_MOVIE_ID = "arg movie id"
         const val ARG_SEARCH = "arg search"
     }

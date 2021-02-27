@@ -1,7 +1,7 @@
 package ru.mikhailskiy.intensiv.data.movie_details_model
 
 import ru.mikhailskiy.intensiv.data.ViewObjectMapper
-import ru.mikhailskiy.intensiv.data.voteAverageToRating
+import ru.mikhailskiy.intensiv.extensions.voteAverageToRating
 
 class MovieDetailsDtoToVoConverter : ViewObjectMapper<MovieDetails, MovieDetailsDto> {
     override fun toViewObject(dto: MovieDetailsDto): MovieDetails {
