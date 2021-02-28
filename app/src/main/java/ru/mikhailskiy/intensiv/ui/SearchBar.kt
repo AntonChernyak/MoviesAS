@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.core.view.isVisible
-import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.search_toolbar.view.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.extensions.afterTextChanged
@@ -42,12 +42,12 @@ class SearchBar @JvmOverloads constructor(
         this.editText.setText("")
     }
 
-    fun getObservableSearch(): Observable<String> {
-        return Observable.create { emitter ->
-            this.editText.afterTextChanged { query ->
-                emitter.onNext(query.toString().trim())
-            }
+    fun getPublishSubjectSearch(): PublishSubject<String> {
+        val subject = PublishSubject.create<String>()
+        this.editText.afterTextChanged { query ->
+            subject.onNext(query.toString().trim())
         }
+        return subject
     }
 
     override fun onFinishInflate() {

@@ -14,8 +14,9 @@ import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.fragment_search.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeed
-import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeedDtoToVoConverter
+import ru.mikhailskiy.intensiv.data.movie_feed_model.Movie
+import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieDtoToVoConverter
+import ru.mikhailskiy.intensiv.extensions.addLoader
 import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment
@@ -39,17 +40,18 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val searchTerm = requireArguments().getString(ARG_SEARCH)
 
-        compositeDisposable.add(search_toolbar.getObservableSearch()
+        compositeDisposable.add(search_toolbar.getPublishSubjectSearch()
             .debounce(500, TimeUnit.MILLISECONDS)
             .filter { it.isNotBlank() && it.length > 3 }
             .distinctUntilChanged()
             .switchMap { MovieApiClient.apiClient.getSearchMovies(query = it) }
             .map {
                 it.results?.let { response ->
-                    MovieFeedDtoToVoConverter().toViewObject(response)
+                    MovieDtoToVoConverter().toViewObject(response)
                 }
             }
             .threadSwitch()
+            .addLoader(search_progress_bar)
             .subscribe({ movieSearchList ->
                 adapter.clear()
                 val moviesSearchItems = movieSearchList.map { movieSearch ->
@@ -74,7 +76,7 @@ class SearchFragment : Fragment() {
         compositeDisposable.clear()
     }
 
-    private fun openMovieDetails(movie: MovieFeed) {
+    private fun openMovieDetails(movie: Movie) {
         val options = navOptions {
             anim {
                 enter = R.anim.slide_in_right

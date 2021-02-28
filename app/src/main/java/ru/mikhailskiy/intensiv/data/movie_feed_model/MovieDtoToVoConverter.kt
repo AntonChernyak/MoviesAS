@@ -3,9 +3,9 @@ package ru.mikhailskiy.intensiv.data.movie_feed_model
 import ru.mikhailskiy.intensiv.data.ViewObjectMapper
 import ru.mikhailskiy.intensiv.extensions.voteAverageToRating
 
-class MovieFeedDtoToVoConverter : ViewObjectMapper<MovieFeed, MovieFeedDto> {
-    override fun toViewObject(dto: MovieFeedDto): MovieFeed {
-        return MovieFeed(
+class MovieDtoToVoConverter : ViewObjectMapper<Movie, MovieDto> {
+    override fun toViewObject(dto: MovieDto): Movie {
+        return Movie(
             id = dto.id,
             title = dto.title,
             rating = dto.voteAverage.voteAverageToRating(),

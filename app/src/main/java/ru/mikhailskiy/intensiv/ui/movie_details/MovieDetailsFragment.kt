@@ -13,7 +13,8 @@ import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.credits_model.ActorDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDtoToVoConverter
-import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeed
+import ru.mikhailskiy.intensiv.data.movie_feed_model.Movie
+import ru.mikhailskiy.intensiv.extensions.addLoader
 import ru.mikhailskiy.intensiv.extensions.loadImage
 import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
@@ -60,6 +61,7 @@ class MovieDetailsFragment : Fragment() {
             MovieApiClient.apiClient.getMovieDetails(movieVoId)
                 .map { MovieDetailsDtoToVoConverter().toViewObject(it) }
                 .threadSwitch()
+                .addLoader(details_progress_bar)
                 .subscribe({ movieDetails ->
                     movie = movieDetails
 
@@ -133,10 +135,10 @@ class MovieDetailsFragment : Fragment() {
     companion object {
 
         @JvmStatic
-        fun newInstance(movieFeed: MovieFeed) =
+        fun newInstance(movie: Movie) =
             MovieDetailsFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(ARG_MOVIE_ID, movieFeed.id)
+                    putInt(ARG_MOVIE_ID, movie.id)
                 }
             }
     }

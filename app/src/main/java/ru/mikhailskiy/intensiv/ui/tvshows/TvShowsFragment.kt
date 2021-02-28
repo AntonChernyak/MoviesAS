@@ -11,8 +11,9 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.tv_shows_fragment.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeed
-import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeedDtoToVoConverter
+import ru.mikhailskiy.intensiv.data.movie_feed_model.Movie
+import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieDtoToVoConverter
+import ru.mikhailskiy.intensiv.extensions.addLoader
 import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
@@ -38,8 +39,9 @@ class TvShowsFragment : Fragment() {
 
         compositeDisposable.add(
             MovieApiClient.apiClient.getPopularTvShowsList()
-                .map { it.results?.let { it1 -> MovieFeedDtoToVoConverter().toViewObject(it1) } }
+                .map { it.results?.let { it1 -> MovieDtoToVoConverter().toViewObject(it1) } }
                 .threadSwitch()
+                .addLoader(tv_show_progress_bar)
                 .subscribe({ tvShowsVOList ->
                     val tvShowsItems = tvShowsVOList?.map { tvShow ->
                         TvShowItem(tvShow) { openTvShowDetails(tvShow) }
@@ -62,7 +64,7 @@ class TvShowsFragment : Fragment() {
         compositeDisposable.clear()
     }
 
-    private fun openTvShowDetails(movieFeed: MovieFeed) {
+    private fun openTvShowDetails(movie: Movie) {
         val options = navOptions {
             anim {
                 enter = R.anim.slide_in_right
@@ -73,7 +75,7 @@ class TvShowsFragment : Fragment() {
         }
 
         val bundle = Bundle()
-        bundle.putInt(ARG_MOVIE_ID, movieFeed.id)
+        bundle.putInt(ARG_MOVIE_ID, movie.id)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
@@ -83,10 +85,10 @@ class TvShowsFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(movieFeed: MovieFeed) =
+        fun newInstance(movie: Movie) =
             TvShowsFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(ARG_MOVIE_ID, movieFeed.id)
+                    putInt(ARG_MOVIE_ID, movie.id)
                 }
             }
     }
