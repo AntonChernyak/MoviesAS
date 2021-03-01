@@ -14,10 +14,6 @@ fun <T> Observable<T>.threadSwitch(): Observable<T> =
 fun <T> Single<T>.threadSwitch(): Single<T> =
     this.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 
-fun <T> Observable<T>.addLoader(progressBar: ProgressBar): Observable<T> =
-    this.doOnSubscribe { progressBar.visibility = VISIBLE }
-        .doFinally { progressBar.visibility = GONE }
-
 fun <T> Single<T>.addLoader(progressBar: ProgressBar): Single<T> =
     this.doOnSubscribe { progressBar.visibility = VISIBLE }
         .doFinally { progressBar.visibility = GONE }

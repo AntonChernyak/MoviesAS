@@ -3,6 +3,8 @@ package ru.mikhailskiy.intensiv.ui.search
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -10,13 +12,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.fragment_search.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.movie_feed_model.Movie
 import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieDtoToVoConverter
-import ru.mikhailskiy.intensiv.extensions.addLoader
 import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment
@@ -44,6 +47,9 @@ class SearchFragment : Fragment() {
             .debounce(500, TimeUnit.MILLISECONDS)
             .filter { it.isNotBlank() && it.length > 3 }
             .distinctUntilChanged()
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext { search_progress_bar.visibility = VISIBLE }
+            .observeOn(Schedulers.io())
             .switchMap { MovieApiClient.apiClient.getSearchMovies(query = it) }
             .map {
                 it.results?.let { response ->
@@ -51,7 +57,7 @@ class SearchFragment : Fragment() {
                 }
             }
             .threadSwitch()
-            .addLoader(search_progress_bar)
+            .doOnNext { search_progress_bar.visibility = GONE }
             .subscribe({ movieSearchList ->
                 adapter.clear()
                 val moviesSearchItems = movieSearchList.map { movieSearch ->
