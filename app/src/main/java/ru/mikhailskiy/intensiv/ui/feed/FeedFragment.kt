@@ -2,6 +2,7 @@ package ru.mikhailskiy.intensiv.ui.feed
 
 import android.os.Bundle
 import android.view.*
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
@@ -80,7 +81,7 @@ class FeedFragment : Fragment() {
                 }
             }
             .threadSwitch()
-            .addLoader(feed_progress_bar)
+            .addLoader(feed_progress_bar as ProgressBar)
             .subscribe({
                 it[TOP_RATED_KEY]?.let { movieVoList ->
                     addMovieListToAdapter(movieVoList, R.string.top_rated, 2000)

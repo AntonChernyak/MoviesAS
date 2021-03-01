@@ -2,6 +2,7 @@ package ru.mikhailskiy.intensiv.ui.movie_details
 
 import android.os.Bundle
 import android.view.*
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -61,7 +62,7 @@ class MovieDetailsFragment : Fragment() {
             MovieApiClient.apiClient.getMovieDetails(movieVoId)
                 .map { MovieDetailsDtoToVoConverter().toViewObject(it) }
                 .threadSwitch()
-                .addLoader(details_progress_bar)
+                .addLoader(details_progress_bar as ProgressBar)
                 .subscribe({ movieDetails ->
                     movie = movieDetails
 

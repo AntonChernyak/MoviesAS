@@ -2,6 +2,7 @@ package ru.mikhailskiy.intensiv.ui.tvshows
 
 import android.os.Bundle
 import android.view.*
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -41,7 +42,7 @@ class TvShowsFragment : Fragment() {
             MovieApiClient.apiClient.getPopularTvShowsList()
                 .map { it.results?.let { it1 -> MovieDtoToVoConverter().toViewObject(it1) } }
                 .threadSwitch()
-                .addLoader(tv_show_progress_bar)
+                .addLoader(tv_show_progress_bar as ProgressBar)
                 .subscribe({ tvShowsVOList ->
                     val tvShowsItems = tvShowsVOList?.map { tvShow ->
                         TvShowItem(tvShow) { openTvShowDetails(tvShow) }
