@@ -66,12 +66,12 @@ class FeedFragment : Fragment() {
             MovieApiClient.apiClient.getPopularMovies(),
             MovieApiClient.apiClient.getNowPlayingMovie(),
             MovieApiClient.apiClient.getUpcomingMovies(),
-            Function4<MovieResponse, MovieResponse, MovieResponse, MovieResponse, Map<String, MovieResponse>> { topRated, popular, nowPlaying, upcoming ->
-                return@Function4 HashMap<String, MovieResponse>()
-                    .plus(TOP_RATED_KEY to topRated)
-                    .plus(POPULAR_KEY to popular)
-                    .plus(NOW_PLAYING_KEY to nowPlaying)
-                    .plus(UPCOMING_KEY to upcoming)
+            Function4<MovieResponse, MovieResponse, MovieResponse, MovieResponse, Map<MovieType, MovieResponse>> { topRated, popular, nowPlaying, upcoming ->
+                return@Function4 HashMap<MovieType, MovieResponse>()
+                    .plus(MovieType.TOP_RATED to topRated)
+                    .plus(MovieType.POPULAR to popular)
+                    .plus(MovieType.NOW_PLAYING to nowPlaying)
+                    .plus(MovieType.UPCOMING to upcoming)
             })
             .map { hashMap ->
                 return@map hashMap.mapValues {
@@ -83,16 +83,16 @@ class FeedFragment : Fragment() {
             .threadSwitch()
             .addLoader(feed_progress_bar as ProgressBar)
             .subscribe({
-                it[TOP_RATED_KEY]?.let { movieVoList ->
+                it[MovieType.TOP_RATED]?.let { movieVoList ->
                     addMovieListToAdapter(movieVoList, R.string.top_rated, 2000)
                 }
-                it[POPULAR_KEY]?.let { movieVoList ->
+                it[MovieType.POPULAR]?.let { movieVoList ->
                     addMovieListToAdapter(movieVoList, R.string.popular, 500)
                 }
-                it[NOW_PLAYING_KEY]?.let { movieVoList ->
+                it[MovieType.NOW_PLAYING]?.let { movieVoList ->
                     addMovieListToAdapter(movieVoList, R.string.now_playing, 0)
                 }
-                it[UPCOMING_KEY]?.let { movieVoList ->
+                it[MovieType.UPCOMING]?.let { movieVoList ->
                     addMovieListToAdapter(movieVoList, R.string.upcoming, 0)
                 }
             }, { e ->
@@ -163,12 +163,15 @@ class FeedFragment : Fragment() {
         inflater.inflate(R.menu.main_menu, menu)
     }
 
+    enum class MovieType {
+        POPULAR,
+        TOP_RATED,
+        NOW_PLAYING,
+        UPCOMING
+    }
+
     companion object {
         const val ARG_MOVIE_ID = "arg movie id"
         const val ARG_SEARCH = "arg search"
-        const val TOP_RATED_KEY = "top rated"
-        const val UPCOMING_KEY = "upcoming"
-        const val POPULAR_KEY = "popular"
-        const val NOW_PLAYING_KEY = "now_playing"
     }
 }
