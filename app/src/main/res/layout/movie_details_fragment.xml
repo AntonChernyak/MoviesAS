@@ -157,6 +157,16 @@
                 app:layout_constraintTop_toTopOf="@id/year_label"
                 tools:text="1970" />
 
+            <include
+                android:id="@+id/details_progress_bar"
+                layout="@layout/loader"
+                android:layout_width="@dimen/progress_bar_size"
+                android:layout_height="@dimen/progress_bar_size"
+                app:layout_constraintBottom_toBottomOf="@+id/watch_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/watch_button" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

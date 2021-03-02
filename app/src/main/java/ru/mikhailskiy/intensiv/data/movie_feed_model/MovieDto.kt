@@ -2,7 +2,7 @@ package ru.mikhailskiy.intensiv.data.movie_feed_model
 
 import com.google.gson.annotations.SerializedName
 
-data class MovieFeedDto(
+data class MovieDto(
     @SerializedName("poster_path")
     val posterPath: String?,
     val id: Int,

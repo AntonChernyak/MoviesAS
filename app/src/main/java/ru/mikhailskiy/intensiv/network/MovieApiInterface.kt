@@ -8,7 +8,7 @@ import retrofit2.http.Query
 import ru.mikhailskiy.intensiv.BuildConfig
 import ru.mikhailskiy.intensiv.data.credits_model.CreditsResponse
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDto
-import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieFeedResponse
+import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieResponse
 
 interface MovieApiInterface {
 
@@ -17,35 +17,35 @@ interface MovieApiInterface {
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Single<MovieFeedResponse>
+    ): Single<MovieResponse>
 
     @GET("movie/popular")
     fun getPopularMovies(
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Single<MovieFeedResponse>
+    ): Single<MovieResponse>
 
     @GET("movie/top_rated")
     fun getTopRatedMovies(
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Single<MovieFeedResponse>
+    ): Single<MovieResponse>
 
     @GET("movie/upcoming")
     fun getUpcomingMovies(
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Single<MovieFeedResponse>
+    ): Single<MovieResponse>
 
     @GET("tv/popular")
     fun getPopularTvShowsList(
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Single<MovieFeedResponse>
+    ): Single<MovieResponse>
 
     @GET("movie/{movie_id}")
     fun getMovieDetails(
@@ -66,7 +66,7 @@ interface MovieApiInterface {
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("query") query: String
-    ): Observable<MovieFeedResponse>
+    ): Observable<MovieResponse>
 
     /*
     @GET("movie/{movie_id}/recommendations")

@@ -13,10 +13,9 @@
         android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/movies_search_recycler_view"
@@ -26,6 +25,11 @@
                 android:scrollbars="vertical"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-        </LinearLayout>
+
+            <include
+                android:id="@+id/feed_progress_bar"
+                layout="@layout/loader" />
+
+        </FrameLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

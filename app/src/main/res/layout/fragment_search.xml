@@ -11,15 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/blueDark"
+        android:overScrollMode="never"
         android:paddingStart="@dimen/container_padding_size"
         android:paddingEnd="@dimen/container_padding_size"
-        android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/movies_search_recycler_view"
@@ -31,6 +30,14 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 tools:listitem="@layout/item_search_movie" />
-        </LinearLayout>
+
+            <include
+                android:id="@+id/search_progress_bar"
+                layout="@layout/loader"
+                android:layout_width="@dimen/progress_bar_size"
+                android:layout_height="@dimen/progress_bar_size"
+                android:layout_gravity="center_horizontal" />
+
+        </FrameLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

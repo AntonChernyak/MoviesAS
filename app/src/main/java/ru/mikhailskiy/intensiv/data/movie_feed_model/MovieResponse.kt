@@ -2,9 +2,9 @@ package ru.mikhailskiy.intensiv.data.movie_feed_model
 
 import com.google.gson.annotations.SerializedName
 
-data class MovieFeedResponse(
+data class MovieResponse(
     var page: Int = 1,
-    var results: List<MovieFeedDto>? = null,
+    var results: List<MovieDto>? = null,
     var dates: Dates? = null,
     @SerializedName("total_pages")
     var totalPages: Int = 1,

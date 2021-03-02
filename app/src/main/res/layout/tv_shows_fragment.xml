@@ -23,4 +23,8 @@
             tools:listitem="@layout/item_tv_show" />
     </androidx.core.widget.NestedScrollView>
 
+    <include
+        android:id="@+id/tv_show_progress_bar"
+        layout="@layout/loader" />
+
 </FrameLayout>

@@ -1,6 +1,6 @@
 package ru.mikhailskiy.intensiv.data.movie_feed_model
 
-data class MovieFeed(
+data class Movie(
     val id: Int = 0,
     val title: String? = "",
     val rating: Float = 0.0f,
