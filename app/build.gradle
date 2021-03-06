@@ -93,8 +93,6 @@ dependencies {
     // Room
     implementation "androidx.room:room-runtime:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
-    implementation "androidx.room:room-ktx:$roomVersion"
-    testImplementation "androidx.room:room-testing:$roomVersion"
 
     // RxJava support for Room
     implementation "androidx.room:room-rxjava2:$roomVersion"
