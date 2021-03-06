@@ -68,7 +68,6 @@ ext {
     rxAndroidVersion = '2.1.1'
 
     // Room
-    roomVersion = '2.1.1'
-    roomRxJava2 = '2.2.6'
+    roomVersion = '2.2.6'
     archRoomRxJava2 = '1.1.1'
 }

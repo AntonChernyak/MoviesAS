@@ -12,12 +12,15 @@ interface MovieDao {
     @Insert
     fun saveMovie(movie: Movie)
 
+    @Insert
+    fun saveMoviesList(movies: List<Movie>)
+
     @Delete
     fun deleteMovie(movie: Movie)
 
-    @Query("SELECT * FROM Favorite_Movies")
-    fun getAllFavoriteMovies(): List<Movie>
+    @Query("SELECT * FROM Movies")
+    fun getAllMovies(): List<Movie>
 
-    @Query("DELETE FROM Favorite_Movies")
-    fun deleteAllFavoriteMovies()
+    @Query("DELETE FROM Movies")
+    fun deleteAllMovies()
 }
