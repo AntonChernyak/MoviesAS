@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "Movies")
+@Entity(tableName = "Favorite_Movies")
 data class Movie(
     @PrimaryKey
     @ColumnInfo(name = "movie_id")
