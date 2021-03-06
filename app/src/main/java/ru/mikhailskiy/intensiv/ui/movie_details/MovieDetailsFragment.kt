@@ -15,6 +15,7 @@ import ru.mikhailskiy.intensiv.data.credits_model.ActorDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_feed_model.Movie
+import ru.mikhailskiy.intensiv.database.MovieDatabase
 import ru.mikhailskiy.intensiv.extensions.addLoader
 import ru.mikhailskiy.intensiv.extensions.loadImage
 import ru.mikhailskiy.intensiv.extensions.threadSwitch
@@ -26,6 +27,7 @@ class MovieDetailsFragment : Fragment() {
     private val compositeDisposable = CompositeDisposable()
     private var movieVoId: Int = 1
     private var movie: MovieDetails? = null
+    private var menu: Menu? = null
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -45,8 +47,8 @@ class MovieDetailsFragment : Fragment() {
         return inflater.inflate(R.layout.movie_details_fragment, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         (requireActivity() as AppCompatActivity?)?.setSupportActionBar(details_toolbar)
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.title = ""
@@ -71,8 +73,15 @@ class MovieDetailsFragment : Fragment() {
                     year_text_view.text = movie?.year
                     studio_text_view.text = movie?.productionCompanies
                     genre_text_view.text = movie?.genres
+
                     movie?.rating?.let { details_movie_rating_bar.rating = it }
                     movie?.posterPath?.let { details_poster_image_view.loadImage(it) }
+                    movie?.let {
+                        setStartFavoriteIconColor(
+                            it,
+                            menu?.findItem(R.id.action_add_to_favorite)
+                        )
+                    }
                 }, { e ->
                     Toast.makeText(
                         requireActivity(),
@@ -110,18 +119,21 @@ class MovieDetailsFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.details_menu, menu)
+        this.menu = menu
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_add_to_favorite -> {
-                movie?.isFavorite = if (movie?.isFavorite!!) {
+                if (movie?.isFavorite == true) {
                     item.setIcon(R.drawable.ic_not_favorite)
-                    false
-                } else {
+                    movie?.isFavorite = false
+                    deleteMovieFromDatabase()
+                } else if (movie?.isFavorite == false) {
                     item.setIcon(R.drawable.ic_favorite)
-                    true
+                    movie?.isFavorite = true
+                    addMovieToDatabase()
                 }
                 return true
             }
@@ -133,8 +145,35 @@ class MovieDetailsFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    companion object {
+    private fun addMovieToDatabase() {
+        movie?.let {
+            MovieDatabase
+                .get(requireActivity())
+                .getFavoriteMovieDao()
+                .saveFavoriteMovie(it)
+        }
+    }
 
+    private fun deleteMovieFromDatabase() {
+        movie?.let {
+            MovieDatabase
+                .get(requireActivity())
+                .getFavoriteMovieDao()
+                .deleteFavoriteMovie(it)
+        }
+    }
+
+    private fun setStartFavoriteIconColor(favoriteMovie: MovieDetails, menuItem: MenuItem?) {
+        val exists = MovieDatabase
+            .get(requireActivity())
+            .getFavoriteMovieDao()
+            .exists(favoriteMovie.id)
+
+        if (exists) menuItem?.setIcon(R.drawable.ic_favorite)
+        else menuItem?.setIcon(R.drawable.ic_not_favorite)
+    }
+
+    companion object {
         @JvmStatic
         fun newInstance(movie: Movie) =
             MovieDetailsFragment().apply {

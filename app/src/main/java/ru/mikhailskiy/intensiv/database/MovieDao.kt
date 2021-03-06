@@ -8,7 +8,6 @@ import ru.mikhailskiy.intensiv.data.movie_feed_model.Movie
 
 @Dao
 interface MovieDao {
-
     @Insert
     fun saveMovie(movie: Movie)
 

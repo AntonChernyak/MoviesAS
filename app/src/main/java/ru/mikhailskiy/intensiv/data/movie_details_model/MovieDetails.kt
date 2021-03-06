@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 data class MovieDetails(
     val genres: String,
     @PrimaryKey
+    @ColumnInfo(name = "movie_id")
     val id: Int = 0,
     @ColumnInfo(name = "description")
     val overview: String? = "",
