@@ -48,7 +48,7 @@ class FeedFragment : Fragment() {
 
         // Добавляем recyclerView
         movies_search_recycler_view.layoutManager = LinearLayoutManager(context)
-        movies_search_recycler_view.adapter = adapter.apply { addAll(listOf()) }
+        movies_search_recycler_view.adapter = adapter.apply { this.clear() }
 
         search_toolbar.search_edit_text.afterTextChanged {
             Timber.d(it.toString())

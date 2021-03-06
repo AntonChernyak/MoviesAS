@@ -169,8 +169,13 @@ class MovieDetailsFragment : Fragment() {
             .getFavoriteMovieDao()
             .exists(favoriteMovie.id)
 
-        if (exists) menuItem?.setIcon(R.drawable.ic_favorite)
-        else menuItem?.setIcon(R.drawable.ic_not_favorite)
+        if (exists) {
+            movie?.isFavorite = true
+            menuItem?.setIcon(R.drawable.ic_favorite)
+        } else {
+            movie?.isFavorite = false
+            menuItem?.setIcon(R.drawable.ic_not_favorite)
+        }
     }
 
     companion object {

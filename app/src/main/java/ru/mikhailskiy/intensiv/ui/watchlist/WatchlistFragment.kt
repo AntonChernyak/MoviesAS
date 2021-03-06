@@ -5,31 +5,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import androidx.recyclerview.widget.GridLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.fragment_watchlist.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.MockRepository
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails
+import ru.mikhailskiy.intensiv.database.MovieDatabase
+import ru.mikhailskiy.intensiv.ui.feed.FeedFragment
 
 class WatchlistFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
     val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
@@ -44,27 +34,34 @@ class WatchlistFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         movies_search_recycler_view.layoutManager = GridLayoutManager(context, 4)
-        movies_search_recycler_view.adapter = adapter.apply { addAll(listOf()) }
+        movies_search_recycler_view.adapter = adapter.apply { this.clear() }
 
         val moviesList =
-            MockRepository.getMovies().map {
-                MoviePreviewItem(
-                    it
-                ) { movie -> }
-            }.toList()
+            MovieDatabase.get(requireActivity()).getFavoriteMovieDao().getAllFavoriteMovies()
+                .map {
+                    MoviePreviewItem(it) { movies -> openMovieDetails(movies) }
+                }
 
         movies_search_recycler_view.adapter = adapter.apply { addAll(moviesList) }
     }
 
-    companion object {
-
-        @JvmStatic
-        fun newInstance() =
-            WatchlistFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    private fun openMovieDetails(movie: MovieDetails) {
+        val options = navOptions {
+            anim {
+                enter = R.anim.slide_in_right
+                exit = R.anim.slide_out_left
+                popEnter = R.anim.slide_in_left
+                popExit = R.anim.slide_out_right
             }
+        }
+
+        val bundle = Bundle()
+        bundle.putInt(FeedFragment.ARG_MOVIE_ID, movie.id)
+        findNavController().navigate(R.id.movie_details_fragment, bundle, options)
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() = WatchlistFragment()
     }
 }
