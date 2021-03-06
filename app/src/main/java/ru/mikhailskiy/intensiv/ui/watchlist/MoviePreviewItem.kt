@@ -9,7 +9,8 @@ import ru.mikhailskiy.intensiv.extensions.loadImage
 
 class MoviePreviewItem(
     private val content: MovieDetails,
-    private val onClick: (movie: MovieDetails) -> Unit
+    private val onClick: (movie: MovieDetails) -> Unit,
+    private val favoriteAdapterListener: FavoriteAdapterListener
 ) : Item() {
 
     override fun getLayout() = R.layout.item_small
@@ -18,6 +19,14 @@ class MoviePreviewItem(
         viewHolder.image_preview.setOnClickListener {
             onClick.invoke(content)
         }
+        viewHolder.image_preview.setOnLongClickListener {
+            favoriteAdapterListener.onLongClickItem(position)
+            return@setOnLongClickListener true
+        }
         viewHolder.image_preview.loadImage(content.posterPath)
+    }
+
+    fun interface FavoriteAdapterListener {
+        fun onLongClickItem(position: Int)
     }
 }

@@ -18,6 +18,7 @@ import ru.mikhailskiy.intensiv.ui.feed.FeedFragment
 
 class WatchlistFragment : Fragment() {
 
+    lateinit var moviesList: MutableList<MoviePreviewItem>
     val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -36,11 +37,18 @@ class WatchlistFragment : Fragment() {
         movies_search_recycler_view.layoutManager = GridLayoutManager(context, 4)
         movies_search_recycler_view.adapter = adapter.apply { this.clear() }
 
-        val moviesList =
+        moviesList =
             MovieDatabase.get(requireActivity()).getFavoriteMovieDao().getAllFavoriteMovies()
-                .map {
-                    MoviePreviewItem(it) { movies -> openMovieDetails(movies) }
-                }
+                .map { movie ->
+                    MoviePreviewItem(
+                        movie,
+                        { openMovieDetails(movie) },
+                        { position ->
+                            adapter.remove(moviesList[position])
+                            deleteMovieFromDb(movie)
+                        }
+                    )
+                }.toMutableList()
 
         movies_search_recycler_view.adapter = adapter.apply { addAll(moviesList) }
     }
@@ -58,6 +66,13 @@ class WatchlistFragment : Fragment() {
         val bundle = Bundle()
         bundle.putInt(FeedFragment.ARG_MOVIE_ID, movie.id)
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
+    }
+
+    private fun deleteMovieFromDb(movie: MovieDetails) {
+        MovieDatabase
+            .get(requireActivity())
+            .getFavoriteMovieDao()
+            .deleteFavoriteMovie(movie)
     }
 
     companion object {
