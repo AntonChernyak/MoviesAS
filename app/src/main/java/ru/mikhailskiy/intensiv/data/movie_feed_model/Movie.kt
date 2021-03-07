@@ -17,5 +17,6 @@ data class Movie(
     @ColumnInfo(name = "release_year")
     val releaseYear: String = "",
     val description: String = "",
-    val voteCount: Int = 0
+    val voteCount: Int = 0,
+    var type: String = ""
 )

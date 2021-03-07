@@ -11,24 +11,28 @@ import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import io.reactivex.Single
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Function4
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.movie_feed_model.Movie
-import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieDtoToVoConverter
-import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieResponse
+import ru.mikhailskiy.intensiv.database.MovieDatabase
 import ru.mikhailskiy.intensiv.extensions.addLoader
 import ru.mikhailskiy.intensiv.extensions.afterTextChanged
 import ru.mikhailskiy.intensiv.extensions.threadSwitch
+import ru.mikhailskiy.intensiv.extensions.toMoviesList
 import ru.mikhailskiy.intensiv.network.MovieApiClient
+import ru.mikhailskiy.intensiv.providers.ObservableCacheProvider
+import ru.mikhailskiy.intensiv.providers.RepositoryAccess
 import timber.log.Timber
 
-class FeedFragment : Fragment() {
+class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieType, List<Movie>>> {
 
+    private var moviesMap = HashMap<MovieType, List<Movie>>()
     private val compositeDisposable = CompositeDisposable()
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
@@ -56,52 +60,84 @@ class FeedFragment : Fragment() {
                 openSearch(it.toString())
             }
         }
-
-        getDataFromNet()
+        getData()
     }
 
-    private fun getDataFromNet() {
-        compositeDisposable.add(Single.zip(
-            MovieApiClient.apiClient.getTopRatedMovies(),
-            MovieApiClient.apiClient.getPopularMovies(),
-            MovieApiClient.apiClient.getNowPlayingMovie(),
-            MovieApiClient.apiClient.getUpcomingMovies(),
-            Function4<MovieResponse, MovieResponse, MovieResponse, MovieResponse, Map<MovieType, MovieResponse>> { topRated, popular, nowPlaying, upcoming ->
-                return@Function4 HashMap<MovieType, MovieResponse>()
+    override fun onStop() {
+        super.onStop()
+        search_toolbar.clear()
+        compositeDisposable.clear()
+
+        saveMoviesToDb()
+    }
+
+    override fun createRemoteObservable(): Observable<Map<MovieType, List<Movie>>> {
+        return Observable.zip(
+            MovieApiClient.apiClient.getTopRatedMovies()
+                .map { it.toMoviesList(MovieType.TOP_RATED.name) },
+            MovieApiClient.apiClient.getPopularMovies()
+                .map { it.toMoviesList(MovieType.POPULAR.name) },
+            MovieApiClient.apiClient.getNowPlayingMovie()
+                .map { it.toMoviesList(MovieType.NOW_PLAYING.name) },
+            MovieApiClient.apiClient.getUpcomingMovies()
+                .map { it.toMoviesList(MovieType.UPCOMING.name) },
+            Function4<List<Movie>, List<Movie>, List<Movie>, List<Movie>, Map<MovieType, List<Movie>>> { topRated, popular, nowPlaying, upcoming ->
+
+                val map = HashMap<MovieType, List<Movie>>()
+                    .plus(MovieType.TOP_RATED to topRated)
+                    .plus(MovieType.POPULAR to popular)
+                    .plus(MovieType.NOW_PLAYING to nowPlaying)
+                    .plus(MovieType.UPCOMING to upcoming)
+                moviesMap = map as HashMap<MovieType, List<Movie>>
+                return@Function4 map
+            })
+    }
+
+    override fun createOfflineObservable(): Observable<Map<MovieType, List<Movie>>> {
+        return Observable.zip(
+            MovieDatabase.get(requireActivity()).getMovieDao()
+                .getMoviesByCategory(MovieType.TOP_RATED.name),
+            MovieDatabase.get(requireActivity()).getMovieDao()
+                .getMoviesByCategory(MovieType.POPULAR.name),
+            MovieDatabase.get(requireActivity()).getMovieDao()
+                .getMoviesByCategory(MovieType.NOW_PLAYING.name),
+            MovieDatabase.get(requireActivity()).getMovieDao()
+                .getMoviesByCategory(MovieType.UPCOMING.name),
+            Function4<List<Movie>, List<Movie>, List<Movie>, List<Movie>, Map<MovieType, List<Movie>>> { topRated, popular, nowPlaying, upcoming ->
+
+                return@Function4 HashMap<MovieType, List<Movie>>()
                     .plus(MovieType.TOP_RATED to topRated)
                     .plus(MovieType.POPULAR to popular)
                     .plus(MovieType.NOW_PLAYING to nowPlaying)
                     .plus(MovieType.UPCOMING to upcoming)
             })
-            .map { hashMap ->
-                return@map hashMap.mapValues {
-                    it.value.results?.let { dtoList ->
-                        MovieDtoToVoConverter().toViewObject(dtoList)
+    }
+
+    private fun getData() {
+        compositeDisposable.add(
+            getObservable(RepositoryAccess.OFFLINE_FIRST)
+                .threadSwitch()
+                .addLoader(feed_progress_bar as ProgressBar)
+                .subscribe({
+                    it[MovieType.TOP_RATED]?.let { movieVoList ->
+                        addMovieListToAdapter(movieVoList, R.string.top_rated, 2000)
                     }
-                }
-            }
-            .threadSwitch()
-            .addLoader(feed_progress_bar as ProgressBar)
-            .subscribe({
-                it[MovieType.TOP_RATED]?.let { movieVoList ->
-                    addMovieListToAdapter(movieVoList, R.string.top_rated, 2000)
-                }
-                it[MovieType.POPULAR]?.let { movieVoList ->
-                    addMovieListToAdapter(movieVoList, R.string.popular, 500)
-                }
-                it[MovieType.NOW_PLAYING]?.let { movieVoList ->
-                    addMovieListToAdapter(movieVoList, R.string.now_playing, 0)
-                }
-                it[MovieType.UPCOMING]?.let { movieVoList ->
-                    addMovieListToAdapter(movieVoList, R.string.upcoming, 0)
-                }
-            }, { e ->
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.error) + e.message,
-                    Toast.LENGTH_SHORT
-                ).show()
-            })
+                    it[MovieType.POPULAR]?.let { movieVoList ->
+                        addMovieListToAdapter(movieVoList, R.string.popular, 500)
+                    }
+                    it[MovieType.NOW_PLAYING]?.let { movieVoList ->
+                        addMovieListToAdapter(movieVoList, R.string.now_playing, 0)
+                    }
+                    it[MovieType.UPCOMING]?.let { movieVoList ->
+                        addMovieListToAdapter(movieVoList, R.string.upcoming, 0)
+                    }
+                }, { e ->
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.error) + e.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                })
         )
     }
 
@@ -110,14 +146,15 @@ class FeedFragment : Fragment() {
         @StringRes label: Int,
         voteCount: Int
     ) {
-        val moviesItemList = listOf(moviesVoList
-            .filter {
-                it.voteCount >= voteCount
-            }.map { movieVo ->
-                MovieItem(movieVo) {
-                    openMovieDetails(movieVo)
-                }
-            }.let { MainCardContainer(label, it) })
+        val moviesItemList = listOf(
+            moviesVoList
+                .filter {
+                    it.voteCount >= voteCount
+                }.map { movieVo ->
+                    MovieItem(movieVo) {
+                        openMovieDetails(movieVo)
+                    }
+                }.let { MainCardContainer(label, it) })
 
         adapter.apply { addAll(moviesItemList) }
     }
@@ -152,12 +189,33 @@ class FeedFragment : Fragment() {
         findNavController().navigate(R.id.search_dest, bundle, options)
     }
 
-    override fun onStop() {
-        super.onStop()
-        search_toolbar.clear()
-        compositeDisposable.clear()
+    private fun saveMoviesToDb() {
+        moviesMap[MovieType.TOP_RATED]?.let {
+            MovieDatabase.get(requireActivity())
+                .getMovieDao()
+                .saveMoviesList(it)
+                .subscribeOn(Schedulers.io())
+                .subscribe()
+        }
+        moviesMap[MovieType.POPULAR]?.let {
+            MovieDatabase.get(requireActivity())
+                .getMovieDao()
+                .saveMoviesList(it)
+                .subscribe()
+        }
+        moviesMap[MovieType.NOW_PLAYING]?.let {
+            MovieDatabase.get(requireActivity())
+                .getMovieDao()
+                .saveMoviesList(it)
+                .subscribe()
+        }
+        moviesMap[MovieType.UPCOMING]?.let {
+            MovieDatabase.get(requireActivity())
+                .getMovieDao()
+                .saveMoviesList(it)
+                .subscribe()
+        }
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.main_menu, menu)

@@ -1,14 +1,14 @@
 package ru.mikhailskiy.intensiv.providers
 
-import io.reactivex.Single
+import io.reactivex.Observable
 
-interface CacheProvider<T> {
+interface ObservableCacheProvider<T> {
 
-    fun getObservable(type: RepositoryAccess): Single<T> {
+    fun getObservable(type: RepositoryAccess): Observable<T> {
         return createObservable(type)
     }
 
-    private fun createObservable(type: RepositoryAccess): Single<T> {
+    private fun createObservable(type: RepositoryAccess): Observable<T> {
         return when (type) {
 
             RepositoryAccess.OFFLINE -> createOfflineObservable()
@@ -17,19 +17,15 @@ interface CacheProvider<T> {
 
             RepositoryAccess.OFFLINE_FIRST -> {
                 val remoteObservable = createRemoteObservable()
-                createOfflineObservable()
+
+                return createOfflineObservable()
                     .onErrorResumeNext(remoteObservable)
+                    .switchIfEmpty(remoteObservable)
             }
         }
     }
 
-    fun createRemoteObservable(): Single<T>
+    fun createRemoteObservable(): Observable<T>
 
-    fun createOfflineObservable(): Single<T>
-}
-
-enum class RepositoryAccess {
-    OFFLINE,
-    REMOTE_FIRST,
-    OFFLINE_FIRST
+    fun createOfflineObservable(): Observable<T>
 }

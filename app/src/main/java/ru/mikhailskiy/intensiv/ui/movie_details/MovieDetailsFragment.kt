@@ -21,11 +21,11 @@ import ru.mikhailskiy.intensiv.extensions.addLoader
 import ru.mikhailskiy.intensiv.extensions.loadImage
 import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
-import ru.mikhailskiy.intensiv.providers.CacheProvider
 import ru.mikhailskiy.intensiv.providers.RepositoryAccess
+import ru.mikhailskiy.intensiv.providers.SingleCacheProvider
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
 
-class MovieDetailsFragment : Fragment(), CacheProvider<MovieDetails> {
+class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
 
     private val compositeDisposable = CompositeDisposable()
     private var movieVoId: Int = 1
@@ -62,7 +62,7 @@ class MovieDetailsFragment : Fragment(), CacheProvider<MovieDetails> {
         actors_recycler_view.isNestedScrollingEnabled = false
     }
 
-    override fun createRemoteObservable(): Single<MovieDetails> {
+    override fun createRemoteSingle(): Single<MovieDetails> {
         return MovieApiClient
             .apiClient
             .getMovieDetails(movieVoId)
@@ -71,7 +71,7 @@ class MovieDetailsFragment : Fragment(), CacheProvider<MovieDetails> {
             }
     }
 
-    override fun createOfflineObservable(): Single<MovieDetails> {
+    override fun createOfflineSingle(): Single<MovieDetails> {
         return MovieDatabase
             .get(requireActivity())
             .getFavoriteMovieDao()
@@ -80,7 +80,7 @@ class MovieDetailsFragment : Fragment(), CacheProvider<MovieDetails> {
 
     private fun getMovieById() {
         compositeDisposable.add(
-            this@MovieDetailsFragment.getObservable(RepositoryAccess.OFFLINE_FIRST)
+            this@MovieDetailsFragment.getSingle(RepositoryAccess.OFFLINE_FIRST)
                 .threadSwitch()
                 .addLoader(details_progress_bar as ProgressBar)
                 .subscribe({ movieDetails ->

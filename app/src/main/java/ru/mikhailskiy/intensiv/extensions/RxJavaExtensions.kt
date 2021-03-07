@@ -21,3 +21,7 @@ fun Completable.threadSwitch(): Completable =
 fun <T> Single<T>.addLoader(progressBar: ProgressBar): Single<T> =
     this.doOnSubscribe { progressBar.visibility = VISIBLE }
         .doFinally { progressBar.visibility = GONE }
+
+fun <T> Observable<T>.addLoader(progressBar: ProgressBar): Observable<T> =
+    this.doOnSubscribe { progressBar.visibility = VISIBLE }
+        .doFinally { progressBar.visibility = GONE }
