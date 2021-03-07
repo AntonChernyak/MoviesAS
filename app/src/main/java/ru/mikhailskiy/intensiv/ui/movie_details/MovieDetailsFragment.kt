@@ -54,7 +54,6 @@ class MovieDetailsFragment : Fragment() {
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.title = ""
         setHasOptionsMenu(true)
 
-        getMovieById()
         addActorsToRecyclerView()
         actors_recycler_view.isNestedScrollingEnabled = false
     }

@@ -23,7 +23,6 @@ abstract class MovieDatabase : RoomDatabase() {
                     MovieDatabase::class.java,
                     "movie-db"
                 )
-                    .allowMainThreadQueries()
                     .build()
             }
             return instance!!
