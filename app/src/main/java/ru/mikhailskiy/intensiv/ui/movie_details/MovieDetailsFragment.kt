@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.movie_details_fragment.*
 import ru.mikhailskiy.intensiv.R
@@ -20,9 +21,11 @@ import ru.mikhailskiy.intensiv.extensions.addLoader
 import ru.mikhailskiy.intensiv.extensions.loadImage
 import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
+import ru.mikhailskiy.intensiv.providers.CacheProvider
+import ru.mikhailskiy.intensiv.providers.RepositoryAccess
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
 
-class MovieDetailsFragment : Fragment() {
+class MovieDetailsFragment : Fragment(), CacheProvider<MovieDetails> {
 
     private val compositeDisposable = CompositeDisposable()
     private var movieVoId: Int = 1
@@ -54,14 +57,30 @@ class MovieDetailsFragment : Fragment() {
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.title = ""
         setHasOptionsMenu(true)
 
+        getMovieById()
         addActorsToRecyclerView()
         actors_recycler_view.isNestedScrollingEnabled = false
     }
 
+    override fun createRemoteObservable(): Single<MovieDetails> {
+        return MovieApiClient
+            .apiClient
+            .getMovieDetails(movieVoId)
+            .map {
+                MovieDetailsDtoToVoConverter().toViewObject(it)
+            }
+    }
+
+    override fun createOfflineObservable(): Single<MovieDetails> {
+        return MovieDatabase
+            .get(requireActivity())
+            .getFavoriteMovieDao()
+            .getFavoriteMovieById(movieVoId)
+    }
+
     private fun getMovieById() {
         compositeDisposable.add(
-            MovieApiClient.apiClient.getMovieDetails(movieVoId)
-                .map { MovieDetailsDtoToVoConverter().toViewObject(it) }
+            this@MovieDetailsFragment.getObservable(RepositoryAccess.OFFLINE_FIRST)
                 .threadSwitch()
                 .addLoader(details_progress_bar as ProgressBar)
                 .subscribe({ movieDetails ->

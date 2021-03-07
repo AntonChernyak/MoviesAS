@@ -1,43 +1,31 @@
 package ru.mikhailskiy.intensiv.providers
 
-import io.reactivex.Observable
-import ru.mikhailskiy.intensiv.extensions.threadSwitch
+import io.reactivex.Single
 
 interface CacheProvider<T> {
 
-    fun getObservable(type: RepositoryAccess): Observable<T> {
+    fun getObservable(type: RepositoryAccess): Single<T> {
         return createObservable(type)
-            .threadSwitch()
     }
 
-    private fun createObservable(type: RepositoryAccess): Observable<T> {
-        when (type) {
+    private fun createObservable(type: RepositoryAccess): Single<T> {
+        return when (type) {
 
-            RepositoryAccess.OFFLINE -> return createOfflineObservable()
+            RepositoryAccess.OFFLINE -> createOfflineObservable()
 
-            RepositoryAccess.REMOTE_FIRST -> return createRemoteObservable()
+            RepositoryAccess.REMOTE_FIRST -> createRemoteObservable()
 
             RepositoryAccess.OFFLINE_FIRST -> {
                 val remoteObservable = createRemoteObservable()
-
-                return createOfflineObservable()
+                createOfflineObservable()
                     .onErrorResumeNext(remoteObservable)
-                    .switchIfEmpty(remoteObservable)
-            }
-
-            else -> {
-                val remoteObservable = createRemoteObservable()
-
-                return createOfflineObservable()
-                    .onErrorResumeNext(remoteObservable)
-                    .concatWith(remoteObservable)
             }
         }
     }
 
-    fun createRemoteObservable(): Observable<T>
+    fun createRemoteObservable(): Single<T>
 
-    fun createOfflineObservable(): Observable<T>
+    fun createOfflineObservable(): Single<T>
 }
 
 enum class RepositoryAccess {

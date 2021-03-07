@@ -67,25 +67,4 @@ interface MovieApiInterface {
         @Query("language") language: String = "ru",
         @Query("query") query: String
     ): Observable<MovieResponse>
-
-    /*
-    @GET("movie/{movie_id}/recommendations")
-    fun getRecommendationsMovies(
-        @Path("movie_id") movieId: Int,
-        @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
-        @Query("language") language: String,
-        @Query("page") page: Int
-    ): Call<MovieResponse>
-
-    @GET("movie/{movie_id}/similar")
-    fun getSimilarMovies(
-        @Path("movie_id") movieId: Int,
-        @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
-        @Query("language") language: String,
-        @Query("page") page: Int
-    ): Call<MovieResponse>
-
-    @GET("/authentication/token/new")
-    fun getAuthenticationToken(@Query("api_key") apiKey: String) : Call<AuthenticationResponse>
-    */
 }

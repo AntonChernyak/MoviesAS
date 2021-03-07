@@ -22,4 +22,7 @@ interface FavoriteMovieDao {
 
     @Query("SELECT EXISTS (SELECT 1 FROM Favorite_Movies WHERE movie_id = :id)")
     fun exists(id: Int): Single<Boolean>
+
+    @Query("SELECT * FROM Favorite_Movies WHERE movie_id = :id")
+    fun getFavoriteMovieById(id: Int): Single<MovieDetails>
 }
