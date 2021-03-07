@@ -4,21 +4,25 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.GridLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_watchlist.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails
 import ru.mikhailskiy.intensiv.database.MovieDatabase
+import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment
 
 class WatchlistFragment : Fragment() {
 
-    lateinit var moviesList: MutableList<MoviePreviewItem>
+    private val compositeDisposable = CompositeDisposable()
+    private lateinit var moviesList: MutableList<MoviePreviewItem>
     val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -37,20 +41,7 @@ class WatchlistFragment : Fragment() {
         movies_search_recycler_view.layoutManager = GridLayoutManager(context, 4)
         movies_search_recycler_view.adapter = adapter.apply { this.clear() }
 
-        moviesList =
-            MovieDatabase.get(requireActivity()).getFavoriteMovieDao().getAllFavoriteMovies()
-                .map { movie ->
-                    MoviePreviewItem(
-                        movie,
-                        { openMovieDetails(movie) },
-                        { position ->
-                            adapter.remove(moviesList[position])
-                            deleteMovieFromDb(movie)
-                        }
-                    )
-                }.toMutableList()
-
-        movies_search_recycler_view.adapter = adapter.apply { addAll(moviesList) }
+        getFavoriteMoviesFromDb()
     }
 
     private fun openMovieDetails(movie: MovieDetails) {
@@ -68,11 +59,51 @@ class WatchlistFragment : Fragment() {
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
-    private fun deleteMovieFromDb(movie: MovieDetails) {
-        MovieDatabase
+    private fun getFavoriteMoviesFromDb() {
+        compositeDisposable.add(MovieDatabase
             .get(requireActivity())
             .getFavoriteMovieDao()
-            .deleteFavoriteMovie(movie)
+            .getAllFavoriteMovies()
+            .map { movies ->
+                movies.map { movie ->
+                    MoviePreviewItem(
+                        movie,
+                        { openMovieDetails(movie) },
+                        { position ->
+                            adapter.remove(moviesList[position])
+                            deleteMovieFromDb(movie)
+                        }
+                    )
+                }
+            }
+            .threadSwitch()
+            .subscribe { list ->
+                moviesList = list.toMutableList()
+                movies_search_recycler_view.adapter = adapter.apply { addAll(moviesList) }
+            }
+        )
+    }
+
+    private fun deleteMovieFromDb(movie: MovieDetails) {
+        compositeDisposable.add(
+            MovieDatabase
+                .get(requireActivity())
+                .getFavoriteMovieDao()
+                .deleteFavoriteMovie(movie)
+                .threadSwitch()
+                .subscribe {
+                    Toast.makeText(
+                        requireActivity(),
+                        getString(R.string.remove_from_favorite),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        )
+    }
+
+    override fun onStop() {
+        super.onStop()
+        compositeDisposable.dispose()
     }
 
     companion object {
