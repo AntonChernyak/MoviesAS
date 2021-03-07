@@ -39,8 +39,6 @@ class WatchlistFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         movies_search_recycler_view.layoutManager = GridLayoutManager(context, 4)
-        movies_search_recycler_view.adapter = adapter.apply { this.clear() }
-
         getFavoriteMoviesFromDb()
     }
 
@@ -79,7 +77,10 @@ class WatchlistFragment : Fragment() {
             .threadSwitch()
             .subscribe { list ->
                 moviesList = list.toMutableList()
-                movies_search_recycler_view.adapter = adapter.apply { addAll(moviesList) }
+                movies_search_recycler_view.adapter = adapter.apply {
+                    clear()
+                    addAll(moviesList)
+                }
             }
         )
     }
@@ -103,7 +104,7 @@ class WatchlistFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        compositeDisposable.dispose()
+        compositeDisposable.clear()
     }
 
     companion object {

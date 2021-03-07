@@ -151,7 +151,17 @@ class MovieDetailsFragment : Fragment() {
                 .get(requireActivity())
                 .getFavoriteMovieDao()
                 .saveFavoriteMovie(it)
+                .threadSwitch()
+                .subscribe {
+                    Toast.makeText(
+                        requireActivity(),
+                        getString(R.string.add_to_favorite),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
         }
+
+
     }
 
     private fun deleteMovieFromDatabase() {
@@ -160,22 +170,33 @@ class MovieDetailsFragment : Fragment() {
                 .get(requireActivity())
                 .getFavoriteMovieDao()
                 .deleteFavoriteMovie(it)
+                .threadSwitch()
+                .subscribe {
+                    Toast.makeText(
+                        requireActivity(),
+                        getString(R.string.remove_from_favorite),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
         }
     }
 
     private fun setStartFavoriteIconColor(favoriteMovie: MovieDetails, menuItem: MenuItem?) {
-        val exists = MovieDatabase
+        compositeDisposable.add(MovieDatabase
             .get(requireActivity())
             .getFavoriteMovieDao()
             .exists(favoriteMovie.id)
-
-        if (exists) {
-            movie?.isFavorite = true
-            menuItem?.setIcon(R.drawable.ic_favorite)
-        } else {
-            movie?.isFavorite = false
-            menuItem?.setIcon(R.drawable.ic_not_favorite)
-        }
+            .threadSwitch()
+            .subscribe { exists ->
+                if (exists) {
+                    movie?.isFavorite = true
+                    menuItem?.setIcon(R.drawable.ic_favorite)
+                } else {
+                    movie?.isFavorite = false
+                    menuItem?.setIcon(R.drawable.ic_not_favorite)
+                }
+            }
+        )
     }
 
     companion object {
