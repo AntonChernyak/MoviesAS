@@ -8,6 +8,7 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails
+import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails.Companion.FAVORITE_MOVIES_TABLE_NAME
 
 @Dao
 interface FavoriteMovieDao {
@@ -17,12 +18,12 @@ interface FavoriteMovieDao {
     @Delete
     fun deleteFavoriteMovie(movie: MovieDetails): Completable
 
-    @Query("SELECT * FROM Favorite_Movies")
+    @Query("SELECT * FROM $FAVORITE_MOVIES_TABLE_NAME")
     fun getAllFavoriteMovies(): Observable<List<MovieDetails>>
 
-    @Query("SELECT EXISTS (SELECT 1 FROM Favorite_Movies WHERE movie_id = :id)")
+    @Query("SELECT EXISTS (SELECT 1 FROM $FAVORITE_MOVIES_TABLE_NAME WHERE movie_id = :id)")
     fun exists(id: Int): Single<Boolean>
 
-    @Query("SELECT * FROM Favorite_Movies WHERE movie_id = :id")
+    @Query("SELECT * FROM $FAVORITE_MOVIES_TABLE_NAME WHERE movie_id = :id")
     fun getFavoriteMovieById(id: Int): Single<MovieDetails>
 }

@@ -3,8 +3,9 @@ package ru.mikhailskiy.intensiv.data.movie_details_model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails.Companion.FAVORITE_MOVIES_TABLE_NAME
 
-@Entity(tableName = "Favorite_Movies")
+@Entity(tableName = FAVORITE_MOVIES_TABLE_NAME)
 data class MovieDetails(
     val genres: String,
     @PrimaryKey
@@ -23,4 +24,10 @@ data class MovieDetails(
     val rating: Float = 0.0f,
     @ColumnInfo(name = "is_favorite")
     var isFavorite: Boolean = false
-)
+) {
+
+    companion object {
+        const val FAVORITE_MOVIES_TABLE_NAME = "favorite_movies"
+    }
+}
+
