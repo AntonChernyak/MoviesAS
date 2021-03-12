@@ -16,6 +16,7 @@ import ru.mikhailskiy.intensiv.data.credits_model.ActorDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_feed_model.Movie
+import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieToMovieDetailsConverter
 import ru.mikhailskiy.intensiv.database.MovieDatabase
 import ru.mikhailskiy.intensiv.extensions.addLoader
 import ru.mikhailskiy.intensiv.extensions.loadImage
@@ -23,6 +24,7 @@ import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
 import ru.mikhailskiy.intensiv.providers.RepositoryAccess
 import ru.mikhailskiy.intensiv.providers.SingleCacheProvider
+import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_DB_TYPE
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
 
 class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
@@ -30,6 +32,7 @@ class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
     private val compositeDisposable = CompositeDisposable()
     private var movieVoId: Int = 1
     private var movie: MovieDetails? = null
+    private var dbType: String? = null
     private var menu: Menu? = null
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
@@ -38,6 +41,7 @@ class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
+            dbType = it.getString(ARG_DB_TYPE)
             movieVoId = it.getInt(ARG_MOVIE_ID)
         }
     }
@@ -72,10 +76,18 @@ class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
     }
 
     override fun createOfflineSingle(): Single<MovieDetails> {
-        return MovieDatabase
-            .get(requireActivity())
-            .getFavoriteMovieDao()
-            .getFavoriteMovieById(movieVoId)
+        return if (dbType == TableType.FAVORITE_MOVIE.name) {
+            MovieDatabase
+                .get(requireActivity())
+                .getFavoriteMovieDao()
+                .getFavoriteMovieById(movieVoId)
+        } else {
+            MovieDatabase
+                .get(requireActivity())
+                .getMovieDao()
+                .getMovieById(movieVoId)
+                .map { MovieToMovieDetailsConverter().toViewObject(it) }
+        }
     }
 
     private fun getMovieById() {
@@ -215,6 +227,11 @@ class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
                 }
             }
         )
+    }
+
+    enum class TableType() {
+        MOVIE,
+        FAVORITE_MOVIE
     }
 
     companion object {

@@ -18,6 +18,7 @@ import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails
 import ru.mikhailskiy.intensiv.database.MovieDatabase
 import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment
+import ru.mikhailskiy.intensiv.ui.movie_details.MovieDetailsFragment
 
 class WatchlistFragment : Fragment() {
 
@@ -54,6 +55,10 @@ class WatchlistFragment : Fragment() {
 
         val bundle = Bundle()
         bundle.putInt(FeedFragment.ARG_MOVIE_ID, movie.id)
+        bundle.putString(
+            FeedFragment.ARG_DB_TYPE,
+            MovieDetailsFragment.TableType.FAVORITE_MOVIE.name
+        )
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
