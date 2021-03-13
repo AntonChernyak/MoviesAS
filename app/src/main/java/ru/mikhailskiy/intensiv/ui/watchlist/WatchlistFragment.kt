@@ -27,6 +27,9 @@ class WatchlistFragment : Fragment() {
     val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
+    private val favoriteMovieDao by lazy {
+        MovieDatabase.get(requireActivity()).getFavoriteMovieDao()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,38 +66,35 @@ class WatchlistFragment : Fragment() {
     }
 
     private fun getFavoriteMoviesFromDb() {
-        compositeDisposable.add(MovieDatabase
-            .get(requireActivity())
-            .getFavoriteMovieDao()
-            .getAllFavoriteMovies()
-            .map { movies ->
-                movies.map { movie ->
-                    MoviePreviewItem(
-                        movie,
-                        { openMovieDetails(movie) },
-                        { position ->
-                            adapter.remove(moviesList[position])
-                            deleteMovieFromDb(movie)
-                        }
-                    )
+        compositeDisposable.add(
+            favoriteMovieDao
+                .getAllFavoriteMovies()
+                .map { movies ->
+                    movies.map { movie ->
+                        MoviePreviewItem(
+                            movie,
+                            { openMovieDetails(movie) },
+                            { position ->
+                                adapter.remove(moviesList[position])
+                                deleteMovieFromDb(movie)
+                            }
+                        )
+                    }
                 }
-            }
-            .threadSwitch()
-            .subscribe { list ->
-                moviesList = list.toMutableList()
-                movies_search_recycler_view.adapter = adapter.apply {
-                    clear()
-                    addAll(moviesList)
+                .threadSwitch()
+                .subscribe { list ->
+                    moviesList = list.toMutableList()
+                    movies_search_recycler_view.adapter = adapter.apply {
+                        clear()
+                        addAll(moviesList)
+                    }
                 }
-            }
         )
     }
 
     private fun deleteMovieFromDb(movie: MovieDetails) {
         compositeDisposable.add(
-            MovieDatabase
-                .get(requireActivity())
-                .getFavoriteMovieDao()
+            favoriteMovieDao
                 .deleteFavoriteMovie(movie)
                 .threadSwitch()
                 .subscribe {

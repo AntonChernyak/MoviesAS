@@ -34,6 +34,9 @@ class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
     private var movie: MovieDetails? = null
     private var dbType: String? = null
     private var menu: Menu? = null
+    private val favoriteMovieDao by lazy {
+        MovieDatabase.get(requireActivity()).getFavoriteMovieDao()
+    }
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -76,15 +79,11 @@ class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
     }
 
     override fun createOfflineSingle(): Single<MovieDetails> {
-        return MovieDatabase
-            .get(requireActivity())
-            .getFavoriteMovieDao()
+        return favoriteMovieDao
             .exists(movieVoId)
             .flatMap {
                 if (it) {
-                    MovieDatabase
-                        .get(requireActivity())
-                        .getFavoriteMovieDao().getFavoriteMovieById(movieVoId)
+                    favoriteMovieDao.getFavoriteMovieById(movieVoId)
                 } else {
                     MovieDatabase
                         .get(requireActivity())
@@ -192,9 +191,7 @@ class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
 
     private fun addMovieToDatabase() {
         movie?.let {
-            MovieDatabase
-                .get(requireActivity())
-                .getFavoriteMovieDao()
+            favoriteMovieDao
                 .saveFavoriteMovie(it)
                 .threadSwitch()
                 .subscribe {
@@ -205,15 +202,11 @@ class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
                     ).show()
                 }
         }
-
-
     }
 
     private fun deleteMovieFromDatabase() {
         movie?.let {
-            MovieDatabase
-                .get(requireActivity())
-                .getFavoriteMovieDao()
+            favoriteMovieDao
                 .deleteFavoriteMovie(it)
                 .threadSwitch()
                 .subscribe {
@@ -227,20 +220,19 @@ class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
     }
 
     private fun setStartFavoriteIconColor(favoriteMovie: MovieDetails, menuItem: MenuItem?) {
-        compositeDisposable.add(MovieDatabase
-            .get(requireActivity())
-            .getFavoriteMovieDao()
-            .exists(favoriteMovie.id)
-            .threadSwitch()
-            .subscribe { exists ->
-                if (exists) {
-                    movie?.isFavorite = true
-                    menuItem?.setIcon(R.drawable.ic_favorite)
-                } else {
-                    movie?.isFavorite = false
-                    menuItem?.setIcon(R.drawable.ic_not_favorite)
+        compositeDisposable.add(
+            favoriteMovieDao
+                .exists(favoriteMovie.id)
+                .threadSwitch()
+                .subscribe { exists ->
+                    if (exists) {
+                        movie?.isFavorite = true
+                        menuItem?.setIcon(R.drawable.ic_favorite)
+                    } else {
+                        movie?.isFavorite = false
+                        menuItem?.setIcon(R.drawable.ic_not_favorite)
+                    }
                 }
-            }
         )
     }
 
