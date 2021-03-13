@@ -17,28 +17,28 @@ interface MovieApiInterface {
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Single<MovieResponse>
+    ): Observable<MovieResponse>
 
     @GET("movie/popular")
     fun getPopularMovies(
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Single<MovieResponse>
+    ): Observable<MovieResponse>
 
     @GET("movie/top_rated")
     fun getTopRatedMovies(
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Single<MovieResponse>
+    ): Observable<MovieResponse>
 
     @GET("movie/upcoming")
     fun getUpcomingMovies(
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Single<MovieResponse>
+    ): Observable<MovieResponse>
 
     @GET("tv/popular")
     fun getPopularTvShowsList(
@@ -67,25 +67,4 @@ interface MovieApiInterface {
         @Query("language") language: String = "ru",
         @Query("query") query: String
     ): Observable<MovieResponse>
-
-    /*
-    @GET("movie/{movie_id}/recommendations")
-    fun getRecommendationsMovies(
-        @Path("movie_id") movieId: Int,
-        @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
-        @Query("language") language: String,
-        @Query("page") page: Int
-    ): Call<MovieResponse>
-
-    @GET("movie/{movie_id}/similar")
-    fun getSimilarMovies(
-        @Path("movie_id") movieId: Int,
-        @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
-        @Query("language") language: String,
-        @Query("page") page: Int
-    ): Call<MovieResponse>
-
-    @GET("/authentication/token/new")
-    fun getAuthenticationToken(@Query("api_key") apiKey: String) : Call<AuthenticationResponse>
-    */
 }

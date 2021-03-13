@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.movie_details_fragment.*
 import ru.mikhailskiy.intensiv.R
@@ -15,17 +16,27 @@ import ru.mikhailskiy.intensiv.data.credits_model.ActorDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails
 import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetailsDtoToVoConverter
 import ru.mikhailskiy.intensiv.data.movie_feed_model.Movie
+import ru.mikhailskiy.intensiv.data.movie_feed_model.MovieToMovieDetailsConverter
+import ru.mikhailskiy.intensiv.database.MovieDatabase
 import ru.mikhailskiy.intensiv.extensions.addLoader
 import ru.mikhailskiy.intensiv.extensions.loadImage
 import ru.mikhailskiy.intensiv.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.network.MovieApiClient
+import ru.mikhailskiy.intensiv.providers.RepositoryAccess
+import ru.mikhailskiy.intensiv.providers.SingleCacheProvider
+import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_DB_TYPE
 import ru.mikhailskiy.intensiv.ui.feed.FeedFragment.Companion.ARG_MOVIE_ID
 
-class MovieDetailsFragment : Fragment() {
+class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
 
     private val compositeDisposable = CompositeDisposable()
     private var movieVoId: Int = 1
     private var movie: MovieDetails? = null
+    private var dbType: String? = null
+    private var menu: Menu? = null
+    private val favoriteMovieDao by lazy {
+        MovieDatabase.get(requireActivity()).getFavoriteMovieDao()
+    }
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -33,6 +44,7 @@ class MovieDetailsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
+            dbType = it.getString(ARG_DB_TYPE)
             movieVoId = it.getInt(ARG_MOVIE_ID)
         }
     }
@@ -45,8 +57,8 @@ class MovieDetailsFragment : Fragment() {
         return inflater.inflate(R.layout.movie_details_fragment, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         (requireActivity() as AppCompatActivity?)?.setSupportActionBar(details_toolbar)
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
         (requireActivity() as AppCompatActivity?)?.supportActionBar?.title = ""
@@ -57,10 +69,44 @@ class MovieDetailsFragment : Fragment() {
         actors_recycler_view.isNestedScrollingEnabled = false
     }
 
+    override fun createRemoteSingle(): Single<MovieDetails> {
+        return MovieApiClient
+            .apiClient
+            .getMovieDetails(movieVoId)
+            .map {
+                MovieDetailsDtoToVoConverter().toViewObject(it)
+            }
+    }
+
+    override fun createOfflineSingle(): Single<MovieDetails> {
+        return favoriteMovieDao
+            .exists(movieVoId)
+            .flatMap {
+                if (it) {
+                    favoriteMovieDao.getFavoriteMovieById(movieVoId)
+                } else {
+                    MovieDatabase
+                        .get(requireActivity())
+                        .getMovieDao()
+                        .getMovieById(movieVoId)
+                        .map { movie ->
+                            MovieToMovieDetailsConverter().toViewObject(movie)
+                        }
+                }
+            }
+    }
+
     private fun getMovieById() {
+        val single = if (dbType == TableType.FAVORITE_MOVIE.name) {
+            this@MovieDetailsFragment
+                .getSingle(RepositoryAccess.OFFLINE_FIRST)
+        } else {
+            this@MovieDetailsFragment
+                .getSingle(RepositoryAccess.REMOTE_FIRST)
+        }
+
         compositeDisposable.add(
-            MovieApiClient.apiClient.getMovieDetails(movieVoId)
-                .map { MovieDetailsDtoToVoConverter().toViewObject(it) }
+            single
                 .threadSwitch()
                 .addLoader(details_progress_bar as ProgressBar)
                 .subscribe({ movieDetails ->
@@ -71,8 +117,15 @@ class MovieDetailsFragment : Fragment() {
                     year_text_view.text = movie?.year
                     studio_text_view.text = movie?.productionCompanies
                     genre_text_view.text = movie?.genres
+
                     movie?.rating?.let { details_movie_rating_bar.rating = it }
                     movie?.posterPath?.let { details_poster_image_view.loadImage(it) }
+                    movie?.let {
+                        setStartFavoriteIconColor(
+                            it,
+                            menu?.findItem(R.id.action_add_to_favorite)
+                        )
+                    }
                 }, { e ->
                     Toast.makeText(
                         requireActivity(),
@@ -110,18 +163,21 @@ class MovieDetailsFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.details_menu, menu)
+        this.menu = menu
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_add_to_favorite -> {
-                movie?.isFavorite = if (movie?.isFavorite!!) {
+                if (movie?.isFavorite == true) {
                     item.setIcon(R.drawable.ic_not_favorite)
-                    false
-                } else {
+                    movie?.isFavorite = false
+                    deleteMovieFromDatabase()
+                } else if (movie?.isFavorite == false) {
                     item.setIcon(R.drawable.ic_favorite)
-                    true
+                    movie?.isFavorite = true
+                    addMovieToDatabase()
                 }
                 return true
             }
@@ -133,8 +189,59 @@ class MovieDetailsFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    companion object {
+    private fun addMovieToDatabase() {
+        movie?.let {
+            favoriteMovieDao
+                .saveFavoriteMovie(it)
+                .threadSwitch()
+                .subscribe {
+                    Toast.makeText(
+                        requireActivity(),
+                        getString(R.string.add_to_favorite),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        }
+    }
 
+    private fun deleteMovieFromDatabase() {
+        movie?.let {
+            favoriteMovieDao
+                .deleteFavoriteMovie(it)
+                .threadSwitch()
+                .subscribe {
+                    Toast.makeText(
+                        requireActivity(),
+                        getString(R.string.remove_from_favorite),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        }
+    }
+
+    private fun setStartFavoriteIconColor(favoriteMovie: MovieDetails, menuItem: MenuItem?) {
+        compositeDisposable.add(
+            favoriteMovieDao
+                .exists(favoriteMovie.id)
+                .threadSwitch()
+                .subscribe { exists ->
+                    if (exists) {
+                        movie?.isFavorite = true
+                        menuItem?.setIcon(R.drawable.ic_favorite)
+                    } else {
+                        movie?.isFavorite = false
+                        menuItem?.setIcon(R.drawable.ic_not_favorite)
+                    }
+                }
+        )
+    }
+
+    enum class TableType {
+        MOVIE,
+        FAVORITE_MOVIE
+    }
+
+    companion object {
         @JvmStatic
         fun newInstance(movie: Movie) =
             MovieDetailsFragment().apply {

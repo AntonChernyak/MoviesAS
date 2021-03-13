@@ -3,6 +3,7 @@ package ru.mikhailskiy.intensiv.extensions
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.ProgressBar
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -14,6 +15,13 @@ fun <T> Observable<T>.threadSwitch(): Observable<T> =
 fun <T> Single<T>.threadSwitch(): Single<T> =
     this.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 
+fun Completable.threadSwitch(): Completable =
+    this.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+
 fun <T> Single<T>.addLoader(progressBar: ProgressBar): Single<T> =
+    this.doOnSubscribe { progressBar.visibility = VISIBLE }
+        .doFinally { progressBar.visibility = GONE }
+
+fun <T> Observable<T>.addLoader(progressBar: ProgressBar): Observable<T> =
     this.doOnSubscribe { progressBar.visibility = VISIBLE }
         .doFinally { progressBar.visibility = GONE }

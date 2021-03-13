@@ -37,4 +37,6 @@
     <string name="now_playing">Уже в кино</string>
     <string name="check_net_connection">Проверьте подключение к сети</string>
     <string name="error">\"Ошибка \"</string>
+    <string name="remove_from_favorite">Фильм удалён из избранного</string>
+    <string name="add_to_favorite">Фильм добавлен в избранное</string>
 </resources>

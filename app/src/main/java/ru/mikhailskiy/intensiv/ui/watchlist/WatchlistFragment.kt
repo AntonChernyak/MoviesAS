@@ -4,32 +4,31 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import androidx.recyclerview.widget.GridLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_watchlist.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.MockRepository
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import ru.mikhailskiy.intensiv.data.movie_details_model.MovieDetails
+import ru.mikhailskiy.intensiv.database.MovieDatabase
+import ru.mikhailskiy.intensiv.extensions.threadSwitch
+import ru.mikhailskiy.intensiv.ui.feed.FeedFragment
+import ru.mikhailskiy.intensiv.ui.movie_details.MovieDetailsFragment
 
 class WatchlistFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
+    private val compositeDisposable = CompositeDisposable()
+    private lateinit var moviesList: MutableList<MoviePreviewItem>
     val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+    private val favoriteMovieDao by lazy {
+        MovieDatabase.get(requireActivity()).getFavoriteMovieDao()
     }
 
     override fun onCreateView(
@@ -44,27 +43,77 @@ class WatchlistFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         movies_search_recycler_view.layoutManager = GridLayoutManager(context, 4)
-        movies_search_recycler_view.adapter = adapter.apply { addAll(listOf()) }
+        getFavoriteMoviesFromDb()
+    }
 
-        val moviesList =
-            MockRepository.getMovies().map {
-                MoviePreviewItem(
-                    it
-                ) { movie -> }
-            }.toList()
+    private fun openMovieDetails(movie: MovieDetails) {
+        val options = navOptions {
+            anim {
+                enter = R.anim.slide_in_right
+                exit = R.anim.slide_out_left
+                popEnter = R.anim.slide_in_left
+                popExit = R.anim.slide_out_right
+            }
+        }
 
-        movies_search_recycler_view.adapter = adapter.apply { addAll(moviesList) }
+        val bundle = Bundle()
+        bundle.putInt(FeedFragment.ARG_MOVIE_ID, movie.id)
+        bundle.putString(
+            FeedFragment.ARG_DB_TYPE,
+            MovieDetailsFragment.TableType.FAVORITE_MOVIE.name
+        )
+        findNavController().navigate(R.id.movie_details_fragment, bundle, options)
+    }
+
+    private fun getFavoriteMoviesFromDb() {
+        compositeDisposable.add(
+            favoriteMovieDao
+                .getAllFavoriteMovies()
+                .map { movies ->
+                    movies.map { movie ->
+                        MoviePreviewItem(
+                            movie,
+                            { openMovieDetails(movie) },
+                            { position ->
+                                adapter.remove(moviesList[position])
+                                deleteMovieFromDb(movie)
+                            }
+                        )
+                    }
+                }
+                .threadSwitch()
+                .subscribe { list ->
+                    moviesList = list.toMutableList()
+                    movies_search_recycler_view.adapter = adapter.apply {
+                        clear()
+                        addAll(moviesList)
+                    }
+                }
+        )
+    }
+
+    private fun deleteMovieFromDb(movie: MovieDetails) {
+        compositeDisposable.add(
+            favoriteMovieDao
+                .deleteFavoriteMovie(movie)
+                .threadSwitch()
+                .subscribe {
+                    Toast.makeText(
+                        requireActivity(),
+                        getString(R.string.remove_from_favorite),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        )
+    }
+
+    override fun onStop() {
+        super.onStop()
+        compositeDisposable.clear()
     }
 
     companion object {
-
         @JvmStatic
-        fun newInstance() =
-            WatchlistFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        fun newInstance() = WatchlistFragment()
     }
 }
