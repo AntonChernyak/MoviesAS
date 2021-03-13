@@ -76,23 +76,38 @@ class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
     }
 
     override fun createOfflineSingle(): Single<MovieDetails> {
-        return if (dbType == TableType.FAVORITE_MOVIE.name) {
-            MovieDatabase
-                .get(requireActivity())
-                .getFavoriteMovieDao()
-                .getFavoriteMovieById(movieVoId)
-        } else {
-            MovieDatabase
-                .get(requireActivity())
-                .getMovieDao()
-                .getMovieById(movieVoId)
-                .map { MovieToMovieDetailsConverter().toViewObject(it) }
-        }
+        return MovieDatabase
+            .get(requireActivity())
+            .getFavoriteMovieDao()
+            .exists(movieVoId)
+            .flatMap {
+                if (it) {
+                    MovieDatabase
+                        .get(requireActivity())
+                        .getFavoriteMovieDao().getFavoriteMovieById(movieVoId)
+                } else {
+                    MovieDatabase
+                        .get(requireActivity())
+                        .getMovieDao()
+                        .getMovieById(movieVoId)
+                        .map { movie ->
+                            MovieToMovieDetailsConverter().toViewObject(movie)
+                        }
+                }
+            }
     }
 
     private fun getMovieById() {
+        val single = if (dbType == TableType.FAVORITE_MOVIE.name) {
+            this@MovieDetailsFragment
+                .getSingle(RepositoryAccess.OFFLINE_FIRST)
+        } else {
+            this@MovieDetailsFragment
+                .getSingle(RepositoryAccess.REMOTE_FIRST)
+        }
+
         compositeDisposable.add(
-            this@MovieDetailsFragment.getSingle(RepositoryAccess.OFFLINE_FIRST)
+            single
                 .threadSwitch()
                 .addLoader(details_progress_bar as ProgressBar)
                 .subscribe({ movieDetails ->

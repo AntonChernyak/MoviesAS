@@ -13,7 +13,12 @@ interface SingleCacheProvider<T> {
 
             RepositoryAccess.OFFLINE -> createOfflineSingle()
 
-            RepositoryAccess.REMOTE_FIRST -> createRemoteSingle()
+            RepositoryAccess.REMOTE -> createRemoteSingle()
+
+            RepositoryAccess.REMOTE_FIRST -> {
+                return createRemoteSingle()
+                    .onErrorResumeNext(createOfflineSingle())
+            }
 
             RepositoryAccess.OFFLINE_FIRST -> {
                 val remoteObservable = createRemoteSingle()

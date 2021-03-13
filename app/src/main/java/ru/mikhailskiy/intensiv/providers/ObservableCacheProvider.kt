@@ -13,7 +13,13 @@ interface ObservableCacheProvider<T> {
 
             RepositoryAccess.OFFLINE -> createOfflineObservable()
 
-            RepositoryAccess.REMOTE_FIRST -> createRemoteObservable()
+            RepositoryAccess.REMOTE -> createRemoteObservable()
+
+            RepositoryAccess.REMOTE_FIRST -> {
+                return createRemoteObservable()
+                    .onErrorResumeNext(createOfflineObservable())
+                    .switchIfEmpty(createOfflineObservable())
+            }
 
             RepositoryAccess.OFFLINE_FIRST -> {
                 val remoteObservable = createRemoteObservable()
