@@ -3,8 +3,9 @@ package ru.mikhailskiy.intensiv.data.movie_feed_model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import ru.mikhailskiy.intensiv.data.movie_feed_model.Movie.Companion.MOVIES_TABLE_NAME
 
-@Entity(tableName = "Movies")
+@Entity(tableName = MOVIES_TABLE_NAME)
 data class Movie(
     @PrimaryKey(autoGenerate = true)
     val dbId: Int = 0,
@@ -20,4 +21,9 @@ data class Movie(
     val description: String = "",
     val voteCount: Int = 0,
     var type: String = ""
-)
+) {
+
+    companion object {
+        const val MOVIES_TABLE_NAME = "movies"
+    }
+}
