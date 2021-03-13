@@ -201,39 +201,21 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
     }
 
     private fun saveMoviesToDb() {
-        moviesMap[MovieType.TOP_RATED]?.let {
-            compositeDisposable.add(
-                movieDao
-                    .saveMoviesList(it)
-                    .subscribeOn(Schedulers.io())
-                    .subscribe({}, { e -> throw IllegalStateException(e.message) })
-            )
-        }
-        moviesMap[MovieType.POPULAR]?.let {
-            compositeDisposable.add(
-                movieDao
-                    .saveMoviesList(it)
-                    .subscribeOn(Schedulers.io())
-                    .subscribe({}, { e -> throw IllegalStateException(e.message) })
-            )
-        }
-        moviesMap[MovieType.NOW_PLAYING]?.let {
-            compositeDisposable.add(
-                movieDao
-                    .saveMoviesList(it)
-                    .subscribeOn(Schedulers.io())
-                    .subscribe({}, { e -> throw IllegalStateException(e.message) })
-            )
-        }
-        moviesMap[MovieType.UPCOMING]?.let {
-            compositeDisposable.add(
-                movieDao
-                    .saveMoviesList(it)
-                    .subscribeOn(Schedulers.io())
-                    .subscribe({}, { e -> throw IllegalStateException(e.message) })
-            )
-        }
+        val sumList = listOf(
+            moviesMap[MovieType.TOP_RATED],
+            moviesMap[MovieType.POPULAR],
+            moviesMap[MovieType.NOW_PLAYING],
+            moviesMap[MovieType.UPCOMING]
+        ).flatMap { it ?: ArrayList() }
+
+        compositeDisposable.add(
+            movieDao
+                .saveMoviesList(sumList)
+                .subscribeOn(Schedulers.io())
+                .subscribe({}, { e -> throw IllegalStateException(e.message) })
+        )
     }
+
 
     private fun clearDatabase() {
         compositeDisposable.add(
