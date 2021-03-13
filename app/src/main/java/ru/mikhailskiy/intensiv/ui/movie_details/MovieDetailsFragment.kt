@@ -229,7 +229,7 @@ class MovieDetailsFragment : Fragment(), SingleCacheProvider<MovieDetails> {
         )
     }
 
-    enum class TableType() {
+    enum class TableType {
         MOVIE,
         FAVORITE_MOVIE
     }

@@ -37,6 +37,12 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
 
     private var moviesMap = HashMap<MovieType, List<Movie>>()
     private val compositeDisposable = CompositeDisposable()
+    private val movieApi by lazy {
+        MovieApiClient.apiClient
+    }
+    private val movieDao by lazy {
+        MovieDatabase.get(requireActivity()).getMovieDao()
+    }
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -79,14 +85,10 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
 
     override fun createRemoteObservable(): Observable<Map<MovieType, List<Movie>>> {
         return Observable.zip(
-            MovieApiClient.apiClient.getTopRatedMovies()
-                .map { it.toMoviesList(MovieType.TOP_RATED.name) },
-            MovieApiClient.apiClient.getPopularMovies()
-                .map { it.toMoviesList(MovieType.POPULAR.name) },
-            MovieApiClient.apiClient.getNowPlayingMovie()
-                .map { it.toMoviesList(MovieType.NOW_PLAYING.name) },
-            MovieApiClient.apiClient.getUpcomingMovies()
-                .map { it.toMoviesList(MovieType.UPCOMING.name) },
+            movieApi.getTopRatedMovies().map { it.toMoviesList(MovieType.TOP_RATED.name) },
+            movieApi.getPopularMovies().map { it.toMoviesList(MovieType.POPULAR.name) },
+            movieApi.getNowPlayingMovie().map { it.toMoviesList(MovieType.NOW_PLAYING.name) },
+            movieApi.getUpcomingMovies().map { it.toMoviesList(MovieType.UPCOMING.name) },
             Function4<List<Movie>, List<Movie>, List<Movie>, List<Movie>, Map<MovieType, List<Movie>>> { topRated, popular, nowPlaying, upcoming ->
 
                 clearDatabase()
@@ -103,14 +105,10 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
 
     override fun createOfflineObservable(): Observable<Map<MovieType, List<Movie>>> {
         return Observable.zip(
-            MovieDatabase.get(requireActivity()).getMovieDao()
-                .getMoviesByCategory(MovieType.TOP_RATED.name),
-            MovieDatabase.get(requireActivity()).getMovieDao()
-                .getMoviesByCategory(MovieType.POPULAR.name),
-            MovieDatabase.get(requireActivity()).getMovieDao()
-                .getMoviesByCategory(MovieType.NOW_PLAYING.name),
-            MovieDatabase.get(requireActivity()).getMovieDao()
-                .getMoviesByCategory(MovieType.UPCOMING.name),
+            movieDao.getMoviesByCategory(MovieType.TOP_RATED.name),
+            movieDao.getMoviesByCategory(MovieType.POPULAR.name),
+            movieDao.getMoviesByCategory(MovieType.NOW_PLAYING.name),
+            movieDao.getMoviesByCategory(MovieType.UPCOMING.name),
             Function4<List<Movie>, List<Movie>, List<Movie>, List<Movie>, Map<MovieType, List<Movie>>> { topRated, popular, nowPlaying, upcoming ->
 
                 if (topRated.isEmpty() || popular.isEmpty() || nowPlaying.isEmpty() || upcoming.isEmpty()) {
@@ -205,8 +203,7 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
     private fun saveMoviesToDb() {
         moviesMap[MovieType.TOP_RATED]?.let {
             compositeDisposable.add(
-                MovieDatabase.get(requireActivity())
-                    .getMovieDao()
+                movieDao
                     .saveMoviesList(it)
                     .subscribeOn(Schedulers.io())
                     .subscribe({}, { e -> throw IllegalStateException(e.message) })
@@ -214,8 +211,7 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
         }
         moviesMap[MovieType.POPULAR]?.let {
             compositeDisposable.add(
-                MovieDatabase.get(requireActivity())
-                    .getMovieDao()
+                movieDao
                     .saveMoviesList(it)
                     .subscribeOn(Schedulers.io())
                     .subscribe({}, { e -> throw IllegalStateException(e.message) })
@@ -223,8 +219,7 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
         }
         moviesMap[MovieType.NOW_PLAYING]?.let {
             compositeDisposable.add(
-                MovieDatabase.get(requireActivity())
-                    .getMovieDao()
+                movieDao
                     .saveMoviesList(it)
                     .subscribeOn(Schedulers.io())
                     .subscribe({}, { e -> throw IllegalStateException(e.message) })
@@ -232,8 +227,7 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
         }
         moviesMap[MovieType.UPCOMING]?.let {
             compositeDisposable.add(
-                MovieDatabase.get(requireActivity())
-                    .getMovieDao()
+                movieDao
                     .saveMoviesList(it)
                     .subscribeOn(Schedulers.io())
                     .subscribe({}, { e -> throw IllegalStateException(e.message) })
@@ -243,8 +237,7 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
 
     private fun clearDatabase() {
         compositeDisposable.add(
-            MovieDatabase.get(requireActivity())
-                .getMovieDao()
+            movieDao
                 .deleteAllMovies()
                 .subscribeOn(Schedulers.computation())
                 .subscribe({}, { e -> throw IllegalStateException(e.message) })
