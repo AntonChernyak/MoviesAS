@@ -17,28 +17,28 @@ interface MovieApiInterface {
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Observable<MovieResponseDto>
+    ): Single<MovieResponseDto>
 
     @GET("movie/popular")
     fun getPopularMovies(
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Observable<MovieResponseDto>
+    ): Single<MovieResponseDto>
 
     @GET("movie/top_rated")
     fun getTopRatedMovies(
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Observable<MovieResponseDto>
+    ): Single<MovieResponseDto>
 
     @GET("movie/upcoming")
     fun getUpcomingMovies(
         @Query("api_key") apiKey: String = BuildConfig.THE_MOVIE_DATABASE_API,
         @Query("language") language: String = "ru",
         @Query("page") page: Int = 1
-    ): Observable<MovieResponseDto>
+    ): Single<MovieResponseDto>
 
     @GET("tv/popular")
     fun getPopularTvShowsList(
