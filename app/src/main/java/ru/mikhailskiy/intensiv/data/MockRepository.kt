@@ -1,6 +1,6 @@
 package ru.mikhailskiy.intensiv.data
 
-import ru.mikhailskiy.intensiv.data.movie_feed_model.Movie
+import ru.mikhailskiy.intensiv.data.vo.Movie
 
 object MockRepository {
 
