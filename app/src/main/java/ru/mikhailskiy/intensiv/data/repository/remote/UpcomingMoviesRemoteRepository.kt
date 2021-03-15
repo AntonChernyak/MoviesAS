@@ -4,7 +4,6 @@ import io.reactivex.Single
 import ru.mikhailskiy.intensiv.data.mappers.MovieDtoMapper
 import ru.mikhailskiy.intensiv.data.network.MovieApiClient
 import ru.mikhailskiy.intensiv.data.vo.Movie
-import ru.mikhailskiy.intensiv.domain.repository.MoviesRepository
 
 class UpcomingMoviesRemoteRepository : MoviesRepository {
 

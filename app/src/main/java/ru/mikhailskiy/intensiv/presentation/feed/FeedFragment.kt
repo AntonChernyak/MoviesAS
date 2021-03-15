@@ -11,7 +11,7 @@ import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
-import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Function4
 import io.reactivex.schedulers.Schedulers
@@ -27,13 +27,20 @@ import ru.mikhailskiy.intensiv.data.extensions.afterTextChanged
 import ru.mikhailskiy.intensiv.data.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.data.extensions.toMoviesList
 import ru.mikhailskiy.intensiv.data.network.MovieApiClient
-import ru.mikhailskiy.intensiv.data.providers.ObservableCacheProvider
 import ru.mikhailskiy.intensiv.data.providers.RepositoryAccess
+import ru.mikhailskiy.intensiv.data.providers.SingleCacheProvider
+import ru.mikhailskiy.intensiv.data.repository.remote.TopRatedMoviesRemoteRepository
 import ru.mikhailskiy.intensiv.data.vo.Movie
+import ru.mikhailskiy.intensiv.domain.usecase.FeedFragmentUseCase
 import ru.mikhailskiy.intensiv.presentation.movie_details.MovieDetailsFragment
 import timber.log.Timber
 
-class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieType, List<Movie>>> {
+class FeedFragment : Fragment(), SingleCacheProvider<Map<FeedFragment.MovieType, List<Movie>>>, FeedPresenter.FeedView {
+
+    // Инициализируем
+    private val presenter: FeedPresenter by lazy {
+        FeedPresenter(FeedFragmentUseCase(TopRatedMoviesRemoteRepository()))
+    }
 
     private var moviesMap = HashMap<MovieType, List<Movie>>()
     private val compositeDisposable = CompositeDisposable()
@@ -69,7 +76,9 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
                 openSearch(it.toString())
             }
         }
-        getData()
+
+        presenter.getMovies()
+        // getData()
     }
 
     override fun onStop() {
@@ -83,8 +92,28 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
         inflater.inflate(R.menu.main_menu, menu)
     }
 
-    override fun createRemoteObservable(): Observable<Map<MovieType, List<Movie>>> {
-        return Observable.zip(
+    override fun showMovies(movies: List<Movie>) {
+        TODO("Not yet implemented")
+    }
+
+    override fun showLoading() {
+        TODO("Not yet implemented")
+    }
+
+    override fun hideLoading() {
+        TODO("Not yet implemented")
+    }
+
+    override fun showEmptyMovies() {
+        TODO("Not yet implemented")
+    }
+
+    override fun showError() {
+        TODO("Not yet implemented")
+    }
+
+    override fun createRemoteSingle(): Single<Map<MovieType, List<Movie>>> {
+        return Single.zip(
             movieApi.getTopRatedMovies().map { it.toMoviesList(MovieType.TOP_RATED.name) },
             movieApi.getPopularMovies().map { it.toMoviesList(MovieType.POPULAR.name) },
             movieApi.getNowPlayingMovie().map { it.toMoviesList(MovieType.NOW_PLAYING.name) },
@@ -103,8 +132,8 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
             })
     }
 
-    override fun createOfflineObservable(): Observable<Map<MovieType, List<Movie>>> {
-        return Observable.zip(
+    override fun createOfflineSingle(): Single<Map<MovieType, List<Movie>>> {
+        return Single.zip(
             movieDao.getMoviesByCategory(MovieType.TOP_RATED.name),
             movieDao.getMoviesByCategory(MovieType.POPULAR.name),
             movieDao.getMoviesByCategory(MovieType.NOW_PLAYING.name),
@@ -124,10 +153,9 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
 
     private fun getData() {
         compositeDisposable.add(
-            getObservable(RepositoryAccess.OFFLINE_FIRST)
+            getSingle(RepositoryAccess.OFFLINE_FIRST)
                 .threadSwitch()
                 .addLoader(feed_progress_bar as ProgressBar)
-                .doOnNext { feed_progress_bar.visibility = View.GONE }
                 .subscribe({
                     it[MovieType.TOP_RATED]?.let { movieVoList ->
                         addMovieListToAdapter(movieVoList, R.string.top_rated, 2000)
@@ -215,7 +243,6 @@ class FeedFragment : Fragment(), ObservableCacheProvider<Map<FeedFragment.MovieT
                 .subscribe({}, { e -> throw IllegalStateException(e.message) })
         )
     }
-
 
     private fun clearDatabase() {
         compositeDisposable.add(

@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import io.reactivex.Completable
-import io.reactivex.Observable
 import io.reactivex.Single
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.data.vo.Movie.Companion.MOVIES_TABLE_NAME
@@ -21,5 +20,5 @@ interface MovieDao {
     fun getMovieById(id: Int): Single<Movie>
 
     @Query("SELECT * FROM $MOVIES_TABLE_NAME WHERE type= :type")
-    fun getMoviesByCategory(type: String): Observable<List<Movie>>
+    fun getMoviesByCategory(type: String): Single<List<Movie>>
 }
