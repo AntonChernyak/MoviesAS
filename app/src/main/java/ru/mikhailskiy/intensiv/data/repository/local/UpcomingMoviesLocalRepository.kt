@@ -10,6 +10,9 @@ import ru.mikhailskiy.intensiv.presentation.feed.FeedFragment
 class UpcomingMoviesLocalRepository(val context: Context) : MoviesRepository {
 
     override fun getMovies(): Single<List<Movie>> {
-        return MovieDatabase.get(context).getMovieDao().getMoviesByCategory(FeedFragment.MovieType.UPCOMING.name)
+        return MovieDatabase.get(context).getMovieDao().getMoviesByCategory(FeedFragment.MovieType.UPCOMING.name).flatMap {
+            if (it.isEmpty()) throw IllegalStateException()
+            else MovieDatabase.get(context).getMovieDao().getMoviesByCategory(FeedFragment.MovieType.UPCOMING.name)
+        }
     }
 }

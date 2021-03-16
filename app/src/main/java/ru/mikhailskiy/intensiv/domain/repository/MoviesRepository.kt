@@ -5,5 +5,4 @@ import ru.mikhailskiy.intensiv.data.vo.Movie
 
 interface MoviesRepository {
     fun getMovies(): Single<List<Movie>>
-
 }

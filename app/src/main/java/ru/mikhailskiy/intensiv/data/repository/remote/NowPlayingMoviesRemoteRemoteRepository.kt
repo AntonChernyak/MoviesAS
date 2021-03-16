@@ -6,7 +6,7 @@ import ru.mikhailskiy.intensiv.data.network.MovieApiClient
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.domain.repository.MoviesRepository
 
-class NowPlayingMoviesRemoteRepository : MoviesRepository {
+class NowPlayingMoviesRemoteRemoteRepository : MoviesRepository {
 
     override fun getMovies(): Single<List<Movie>> {
         return MovieApiClient.apiClient.getNowPlayingMovie().map { movieResponse ->

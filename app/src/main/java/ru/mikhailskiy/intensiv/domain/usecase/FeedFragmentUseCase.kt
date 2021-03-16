@@ -1,56 +1,81 @@
 package ru.mikhailskiy.intensiv.domain.usecase
 
+import android.util.Log
+import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.functions.Function4
 import ru.mikhailskiy.intensiv.data.extensions.threadSwitch
 import ru.mikhailskiy.intensiv.data.providers.RepositoryAccess
 import ru.mikhailskiy.intensiv.data.providers.SingleCacheProvider
+import ru.mikhailskiy.intensiv.data.repository.local.DbRepository
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.domain.repository.MoviesRepository
 import ru.mikhailskiy.intensiv.presentation.feed.FeedFragment
 
 class FeedFragmentUseCase(
-    private val repositories: HashMap<FeedFragment.MovieType, MoviesRepository>
+    private val remoteRepositories: HashMap<FeedFragment.MovieType, MoviesRepository>,
+    private val localRepositories: HashMap<FeedFragment.MovieType, MoviesRepository>,
+    private val dbRepository: DbRepository
 ) : SingleCacheProvider<Map<FeedFragment.MovieType, List<Movie>>> {
 
 
     fun getMovies(): Single<Map<FeedFragment.MovieType, List<Movie>>> {
-        return getSingle(RepositoryAccess.OFFLINE_FIRST)
+        Log.d("TAGGG", "useCase.getmovies = ")
+        return getSingle(RepositoryAccess.REMOTE).threadSwitch()
+    }
+
+    fun saveMovies(moviesList: List<Movie>): Completable {
+        return dbRepository
+            .saveMovies(moviesList)
             .threadSwitch()
     }
 
     override fun createRemoteSingle(): Single<Map<FeedFragment.MovieType, List<Movie>>> {
+        Log.d("TAGGG", "remote inside")
         return Single.zip(
-            repositories[FeedFragment.MovieType.TOP_RATED]?.getMovies(),
-            repositories[FeedFragment.MovieType.POPULAR]?.getMovies(),
-            repositories[FeedFragment.MovieType.NOW_PLAYING]?.getMovies(),
-            repositories[FeedFragment.MovieType.UPCOMING]?.getMovies(),
-            object : Function4<List<Movie>, List<Movie>, List<Movie>, List<Movie>, Map<FeedFragment.MovieType, List<Movie>>> {
-                override fun invoke(p1: List<Movie>, p2: List<Movie>, p3: List<Movie>, p4: List<Movie>): Map<FeedFragment.MovieType, List<Movie>> {
-                    //  clearDatabase()
-                    return HashMap<FeedFragment.MovieType, List<Movie>>()
-                        .plus(FeedFragment.MovieType.TOP_RATED to p1)
-                        .plus(FeedFragment.MovieType.POPULAR to p2)
-                        .plus(FeedFragment.MovieType.NOW_PLAYING to p3)
-                        .plus(FeedFragment.MovieType.UPCOMING to p4)
-                }
+            remoteRepositories[FeedFragment.MovieType.TOP_RATED]?.getMovies(),
+            remoteRepositories[FeedFragment.MovieType.POPULAR]?.getMovies(),
+            remoteRepositories[FeedFragment.MovieType.NOW_PLAYING]?.getMovies(),
+            remoteRepositories[FeedFragment.MovieType.UPCOMING]?.getMovies().apply { Log.d("TAGGG", this.toString()) },
+            Function4<List<Movie>, List<Movie>, List<Movie>, List<Movie>, Map<FeedFragment.MovieType, List<Movie>>> { topRated, popular, nowPlaying, upcoming ->
+
+                return@Function4 HashMap<FeedFragment.MovieType, List<Movie>>()
+                    .plus(FeedFragment.MovieType.TOP_RATED to topRated)
+                    .plus(FeedFragment.MovieType.POPULAR to popular)
+                    .plus(FeedFragment.MovieType.NOW_PLAYING to nowPlaying)
+                    .plus(FeedFragment.MovieType.UPCOMING to upcoming)
             })
+/*            Function4<List<Movie>, List<Movie>, List<Movie>, List<Movie>, Map<FeedFragment.MovieType, List<Movie>>> {
+                override fun invoke(
+                    topRated: List<Movie>,
+                    popular: List<Movie>,
+                    nowPlaying: List<Movie>,
+                    upcoming: List<Movie>
+                ): Map<FeedFragment.MovieType, List<Movie>> {
+                    //  clearDatabase()
+                    Log.d("TAGGGG", "top = $topRated")
+                    return HashMap<FeedFragment.MovieType, List<Movie>>()
+                        .plus(FeedFragment.MovieType.TOP_RATED to topRated)
+                        .plus(FeedFragment.MovieType.POPULAR to popular)
+                        .plus(FeedFragment.MovieType.NOW_PLAYING to nowPlaying)
+                        .plus(FeedFragment.MovieType.UPCOMING to upcoming)
+                }
+            })*/
     }
 
     override fun createOfflineSingle(): Single<Map<FeedFragment.MovieType, List<Movie>>> {
         return Single.zip(
-            repositories[FeedFragment.MovieType.TOP_RATED]?.getMovies(),
-            repositories[FeedFragment.MovieType.POPULAR]?.getMovies(),
-            repositories[FeedFragment.MovieType.NOW_PLAYING]?.getMovies(),
-            repositories[FeedFragment.MovieType.UPCOMING]?.getMovies(),
-            object : Function4<List<Movie>, List<Movie>, List<Movie>, List<Movie>, Map<FeedFragment.MovieType, List<Movie>>> {
-                override fun invoke(p1: List<Movie>, p2: List<Movie>, p3: List<Movie>, p4: List<Movie>): Map<FeedFragment.MovieType, List<Movie>> {
-                    //  clearDatabase()
-                    return HashMap<FeedFragment.MovieType, List<Movie>>()
-                        .plus(FeedFragment.MovieType.TOP_RATED to p1)
-                        .plus(FeedFragment.MovieType.POPULAR to p2)
-                        .plus(FeedFragment.MovieType.NOW_PLAYING to p3)
-                        .plus(FeedFragment.MovieType.UPCOMING to p4)
-                }
+            localRepositories[FeedFragment.MovieType.TOP_RATED]?.getMovies(),
+            localRepositories[FeedFragment.MovieType.POPULAR]?.getMovies(),
+            localRepositories[FeedFragment.MovieType.NOW_PLAYING]?.getMovies(),
+            localRepositories[FeedFragment.MovieType.UPCOMING]?.getMovies(),
+            Function4<List<Movie>, List<Movie>, List<Movie>, List<Movie>, Map<FeedFragment.MovieType, List<Movie>>> { topRated, popular, nowPlaying, upcoming ->
+
+                return@Function4 HashMap<FeedFragment.MovieType, List<Movie>>()
+                    .plus(FeedFragment.MovieType.TOP_RATED to topRated)
+                    .plus(FeedFragment.MovieType.POPULAR to popular)
+                    .plus(FeedFragment.MovieType.NOW_PLAYING to nowPlaying)
+                    .plus(FeedFragment.MovieType.UPCOMING to upcoming)
             })
     }
 
