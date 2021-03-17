@@ -10,10 +10,19 @@ import ru.mikhailskiy.intensiv.presentation.feed.FeedFragment
 class TopRatedMoviesLocalRepository(val context: Context) : MoviesRepository {
 
     override fun getMovies(): Single<List<Movie>> {
-        return MovieDatabase.get(context).getMovieDao().getMoviesByCategory(FeedFragment.MovieType.TOP_RATED.name).flatMap {
-            if (it.isEmpty()) throw IllegalStateException()
-            else MovieDatabase.get(context).getMovieDao().getMoviesByCategory(FeedFragment.MovieType.TOP_RATED.name)
-        }
+        return MovieDatabase
+            .get(context)
+            .getMovieDao()
+            .getMoviesByCategory(FeedFragment.MovieType.TOP_RATED.name)
+            .flatMap {
+                if (it.isEmpty()) throw IllegalStateException()
+                else {
+                    MovieDatabase
+                        .get(context)
+                        .getMovieDao()
+                        .getMoviesByCategory(FeedFragment.MovieType.TOP_RATED.name)
+                }
+            }
     }
 
 }

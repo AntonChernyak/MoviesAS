@@ -111,7 +111,10 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
     }
 
     override fun showEmptyMovies() {
-        TODO("Not yet implemented")
+        addMovieListToAdapter(emptyList(), R.string.top_rated, 2000)
+        addMovieListToAdapter(emptyList(), R.string.popular, 500)
+        addMovieListToAdapter(emptyList(), R.string.now_playing, 0)
+        addMovieListToAdapter(emptyList(), R.string.upcoming, 0)
     }
 
     private fun addMovieListToAdapter(
@@ -174,17 +177,6 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
 
         presenter.saveMovies(sumList)
     }
-
-/*
-    private fun clearDatabase() {
-        compositeDisposable.add(
-            movieDao
-                .deleteAllMovies()
-                .subscribeOn(Schedulers.computation())
-                .subscribe({}, { e -> throw IllegalStateException(e.message) })
-        )
-    }
-    */
 
     private fun createRemoteRepository(): HashMap<MovieType, MoviesRepository> {
         return hashMapOf(
