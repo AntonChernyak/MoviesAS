@@ -29,6 +29,5 @@ class TvShowsPresenter(private val useCase: TvShowsFragmentUseCase) : BasePresen
         fun showLoading()
         fun hideLoading()
         fun showEmptyMovies()
-        //fun showError()
     }
 }

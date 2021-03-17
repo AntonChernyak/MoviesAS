@@ -2,8 +2,6 @@ package ru.mikhailskiy.intensiv.presentation.tvshows
 
 import android.os.Bundle
 import android.view.*
-import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
@@ -12,16 +10,17 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.tv_shows_fragment.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.extensions.addLoader
-import ru.mikhailskiy.intensiv.data.extensions.threadSwitch
-import ru.mikhailskiy.intensiv.data.mappers.MovieDtoMapper
-import ru.mikhailskiy.intensiv.data.network.MovieApiClient
+import ru.mikhailskiy.intensiv.data.repository.remote.TvShowsRemoteRepository
 import ru.mikhailskiy.intensiv.data.vo.Movie
+import ru.mikhailskiy.intensiv.domain.usecase.TvShowsFragmentUseCase
 import ru.mikhailskiy.intensiv.presentation.feed.FeedFragment.Companion.ARG_MOVIE_ID
 
-class TvShowsFragment : Fragment() {
+class TvShowsFragment : Fragment(), TvShowsPresenter.TvShowsView {
 
     private val compositeDisposable = CompositeDisposable()
+    private val tvShowsPresenter by lazy {
+        TvShowsPresenter(TvShowsFragmentUseCase(TvShowsRemoteRepository()))
+    }
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
     }
@@ -38,31 +37,37 @@ class TvShowsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        compositeDisposable.add(
-            MovieApiClient.apiClient.getPopularTvShowsList()
-                .map { it.results?.let { it1 -> MovieDtoMapper().toViewObject(it1) } }
-                .threadSwitch()
-                .addLoader(tv_show_progress_bar as ProgressBar)
-                .subscribe({ tvShowsVOList ->
-                    val tvShowsItems = tvShowsVOList?.map { tvShow ->
-                        TvShowItem(tvShow) { openTvShowDetails(tvShow) }
-                    }
-
-                    tv_shows_recycler_view.adapter =
-                        adapter.apply { tvShowsItems?.let { addAll(it) } }
-                }, { e ->
-                    Toast.makeText(
-                        requireActivity(),
-                        getString(R.string.error) + e.message,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                })
-        )
+        tvShowsPresenter.attachView(this)
+        tvShowsPresenter.getTvShows()
     }
 
     override fun onStop() {
         super.onStop()
+        tvShowsPresenter.detachView()
         compositeDisposable.clear()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.main_menu, menu)
+    }
+
+    override fun showTvShows(list: List<Movie>) {
+        val tvShowsItems = list.map { tvShow ->
+            TvShowItem(tvShow) { openTvShowDetails(tvShow) }
+        }
+        tv_shows_recycler_view.adapter = adapter.apply { addAll(tvShowsItems) }
+    }
+
+    override fun showLoading() {
+        tv_show_progress_bar.visibility = View.VISIBLE
+    }
+
+    override fun hideLoading() {
+        tv_show_progress_bar.visibility = View.GONE
+    }
+
+    override fun showEmptyMovies() {
+        tv_shows_recycler_view.adapter = adapter.apply { addAll(mutableListOf()) }
     }
 
     private fun openTvShowDetails(movie: Movie) {
@@ -80,17 +85,4 @@ class TvShowsFragment : Fragment() {
         findNavController().navigate(R.id.movie_details_fragment, bundle, options)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.main_menu, menu)
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(movie: Movie) =
-            TvShowsFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(ARG_MOVIE_ID, movie.id)
-                }
-            }
-    }
 }
