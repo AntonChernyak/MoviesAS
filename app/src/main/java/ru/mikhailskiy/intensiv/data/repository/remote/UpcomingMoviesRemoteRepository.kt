@@ -5,7 +5,6 @@ import ru.mikhailskiy.intensiv.data.extension.toMoviesList
 import ru.mikhailskiy.intensiv.data.network.MovieApiClient
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.domain.repository.MoviesRepository
-import ru.mikhailskiy.intensiv.presentation.feed.FeedFragment
 
 class UpcomingMoviesRemoteRepository : MoviesRepository {
 
@@ -14,7 +13,7 @@ class UpcomingMoviesRemoteRepository : MoviesRepository {
             .apiClient
             .getUpcomingMovies()
             .map {
-                it.toMoviesList(FeedFragment.MovieType.UPCOMING.name)
+                it.toMoviesList(MoviesRepository.MovieType.UPCOMING.name)
             }
     }
 }

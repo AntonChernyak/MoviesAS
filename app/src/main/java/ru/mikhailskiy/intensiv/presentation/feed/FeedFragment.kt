@@ -39,7 +39,7 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
         )
     }
 
-    private var moviesMap = HashMap<MovieType, List<Movie>>()
+    private var moviesMap = HashMap<MoviesRepository.MovieType, List<Movie>>()
     private val compositeDisposable = CompositeDisposable()
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()
@@ -86,18 +86,18 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
     }
 
 
-    override fun showMovies(map: Map<MovieType, List<Movie>>) {
-        moviesMap = map as HashMap<MovieType, List<Movie>>
-        map[MovieType.TOP_RATED]?.let { movieVoList ->
+    override fun showMovies(map: Map<MoviesRepository.MovieType, List<Movie>>) {
+        moviesMap = map as HashMap<MoviesRepository.MovieType, List<Movie>>
+        map[MoviesRepository.MovieType.TOP_RATED]?.let { movieVoList ->
             addMovieListToAdapter(movieVoList, R.string.top_rated, TOP_RATED_VOTE_COUNT)
         }
-        map[MovieType.POPULAR]?.let { movieVoList ->
+        map[MoviesRepository.MovieType.POPULAR]?.let { movieVoList ->
             addMovieListToAdapter(movieVoList, R.string.popular, POPULAR_VOTE_COUNT)
         }
-        map[MovieType.NOW_PLAYING]?.let { movieVoList ->
+        map[MoviesRepository.MovieType.NOW_PLAYING]?.let { movieVoList ->
             addMovieListToAdapter(movieVoList, R.string.now_playing, NOW_PLAYING_VOTE_COUNT)
         }
-        map[MovieType.UPCOMING]?.let { movieVoList ->
+        map[MoviesRepository.MovieType.UPCOMING]?.let { movieVoList ->
             addMovieListToAdapter(movieVoList, R.string.upcoming, UPCOMING_VOTE_COUNT)
         }
     }
@@ -169,38 +169,31 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
 
     private fun saveMoviesToDb() {
         val sumList = listOf(
-            moviesMap[MovieType.TOP_RATED],
-            moviesMap[MovieType.POPULAR],
-            moviesMap[MovieType.NOW_PLAYING],
-            moviesMap[MovieType.UPCOMING]
+            moviesMap[MoviesRepository.MovieType.TOP_RATED],
+            moviesMap[MoviesRepository.MovieType.POPULAR],
+            moviesMap[MoviesRepository.MovieType.NOW_PLAYING],
+            moviesMap[MoviesRepository.MovieType.UPCOMING]
         ).flatMap { it ?: ArrayList() }
 
         presenter.saveMovies(sumList)
     }
 
-    private fun createRemoteRepository(): HashMap<MovieType, MoviesRepository> {
+    private fun createRemoteRepository(): HashMap<MoviesRepository.MovieType, MoviesRepository> {
         return hashMapOf(
-            MovieType.TOP_RATED to TopRatedMoviesRemoteRpository(),
-            MovieType.UPCOMING to UpcomingMoviesRemoteRepository(),
-            MovieType.POPULAR to PopularMoviesRemoteRepository(),
-            MovieType.NOW_PLAYING to NowPlayingMoviesRemoteRepository()
+            MoviesRepository.MovieType.TOP_RATED to TopRatedMoviesRemoteRpository(),
+            MoviesRepository.MovieType.UPCOMING to UpcomingMoviesRemoteRepository(),
+            MoviesRepository.MovieType.POPULAR to PopularMoviesRemoteRepository(),
+            MoviesRepository.MovieType.NOW_PLAYING to NowPlayingMoviesRemoteRepository()
         )
     }
 
-    private fun createLocalRepository(): HashMap<MovieType, MoviesRepository> {
+    private fun createLocalRepository(): HashMap<MoviesRepository.MovieType, MoviesRepository> {
         return hashMapOf(
-            MovieType.TOP_RATED to TopRatedMoviesLocalRepository(requireActivity()),
-            MovieType.UPCOMING to UpcomingMoviesLocalRepository(requireActivity()),
-            MovieType.POPULAR to PopularMoviesLocalRepository(requireActivity()),
-            MovieType.NOW_PLAYING to NowPlayingMoviesLocalRepository(requireActivity())
+            MoviesRepository.MovieType.TOP_RATED to TopRatedMoviesLocalRepository(requireActivity()),
+            MoviesRepository.MovieType.UPCOMING to UpcomingMoviesLocalRepository(requireActivity()),
+            MoviesRepository.MovieType.POPULAR to PopularMoviesLocalRepository(requireActivity()),
+            MoviesRepository.MovieType.NOW_PLAYING to NowPlayingMoviesLocalRepository(requireActivity())
         )
-    }
-
-    enum class MovieType {
-        POPULAR,
-        TOP_RATED,
-        NOW_PLAYING,
-        UPCOMING
     }
 
     companion object {

@@ -2,6 +2,7 @@ package ru.mikhailskiy.intensiv.presentation.feed
 
 import android.annotation.SuppressLint
 import ru.mikhailskiy.intensiv.data.vo.Movie
+import ru.mikhailskiy.intensiv.domain.repository.MoviesRepository
 import ru.mikhailskiy.intensiv.domain.usecase.FeedFragmentUseCase
 import ru.mikhailskiy.intensiv.presentation.base.BasePresenter
 import timber.log.Timber
@@ -31,7 +32,7 @@ class FeedPresenter(private val useCase: FeedFragmentUseCase) :
     }
 
     interface FeedView {
-        fun showMovies(map: Map<FeedFragment.MovieType, List<Movie>>)
+        fun showMovies(map: Map<MoviesRepository.MovieType, List<Movie>>)
         fun showLoading()
         fun hideLoading()
         fun showEmptyMovies()

@@ -5,7 +5,6 @@ import ru.mikhailskiy.intensiv.data.extension.toMoviesList
 import ru.mikhailskiy.intensiv.data.network.MovieApiClient
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.domain.repository.MoviesRepository
-import ru.mikhailskiy.intensiv.presentation.feed.FeedFragment
 
 class TopRatedMoviesRemoteRpository : MoviesRepository {
 
@@ -14,7 +13,7 @@ class TopRatedMoviesRemoteRpository : MoviesRepository {
             .apiClient
             .getTopRatedMovies()
             .map {
-                it.toMoviesList(FeedFragment.MovieType.TOP_RATED.name)
+                it.toMoviesList(MoviesRepository.MovieType.TOP_RATED.name)
             }
     }
 }
