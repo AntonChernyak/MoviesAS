@@ -1,7 +1,6 @@
 package ru.mikhailskiy.intensiv.presentation.feed
 
 import android.annotation.SuppressLint
-import android.util.Log
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.domain.usecase.FeedFragmentUseCase
 import ru.mikhailskiy.intensiv.presentation.base.BasePresenter
@@ -17,11 +16,9 @@ class FeedPresenter(private val useCase: FeedFragmentUseCase) :
             .doFinally { view?.hideLoading() }
             .subscribe(
                 {
-                    Log.d("TAGGG", "map = $it")
                     view?.showMovies(it)
                 },
                 { t ->
-                    Log.d("TAGGG", "error")
                     Timber.e(t, t.toString())
                     view?.showEmptyMovies()
                 })
@@ -38,6 +35,5 @@ class FeedPresenter(private val useCase: FeedFragmentUseCase) :
         fun showLoading()
         fun hideLoading()
         fun showEmptyMovies()
-        //fun showError()
     }
 }

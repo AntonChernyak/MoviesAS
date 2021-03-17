@@ -77,7 +77,7 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
         super.onStop()
         search_toolbar.clear()
         saveMoviesToDb()
-        //  presenter.detachView()
+        presenter.detachView()
         compositeDisposable.clear()
     }
 
@@ -173,12 +173,6 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
         ).flatMap { it ?: ArrayList() }
 
         presenter.saveMovies(sumList)
-/*        compositeDisposable.add(
-            movieDao
-                .saveMoviesList(sumList)
-                .subscribeOn(Schedulers.io())
-                .subscribe({}, { e -> throw IllegalStateException(e.message) })
-        )*/
     }
 
 
