@@ -4,10 +4,10 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Function4
-import ru.mikhailskiy.intensiv.data.extensions.threadSwitch
+import ru.mikhailskiy.intensiv.data.extension.threadSwitch
 import ru.mikhailskiy.intensiv.data.providers.RepositoryAccess
 import ru.mikhailskiy.intensiv.data.providers.SingleCacheProvider
-import ru.mikhailskiy.intensiv.data.repository.local.DbRepository
+import ru.mikhailskiy.intensiv.data.repository.local.MoviesStoreRepository
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.domain.repository.MoviesRepository
 import ru.mikhailskiy.intensiv.presentation.feed.FeedFragment
@@ -15,7 +15,7 @@ import ru.mikhailskiy.intensiv.presentation.feed.FeedFragment
 class FeedFragmentUseCase(
     private val remoteRepositories: HashMap<FeedFragment.MovieType, MoviesRepository>,
     private val localRepositories: HashMap<FeedFragment.MovieType, MoviesRepository>,
-    private val dbRepository: DbRepository
+    private val dbRepository: MoviesStoreRepository
 ) : SingleCacheProvider<Map<FeedFragment.MovieType, List<Movie>>> {
 
     override fun createRemoteSingle(): Single<Map<FeedFragment.MovieType, List<Movie>>> {

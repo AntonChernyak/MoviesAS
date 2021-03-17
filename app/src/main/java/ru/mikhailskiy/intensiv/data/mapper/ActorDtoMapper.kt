@@ -1,6 +1,6 @@
-package ru.mikhailskiy.intensiv.data.mappers
+package ru.mikhailskiy.intensiv.data.mapper
 
-import ru.mikhailskiy.intensiv.data.dto.actors_dto.ActorDto
+import ru.mikhailskiy.intensiv.data.dto.actor.ActorDto
 import ru.mikhailskiy.intensiv.data.vo.Actor
 
 class ActorDtoMapper : ViewObjectMapper<Actor, ActorDto> {

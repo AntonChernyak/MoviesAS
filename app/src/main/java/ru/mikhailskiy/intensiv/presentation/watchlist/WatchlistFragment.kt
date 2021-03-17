@@ -15,7 +15,7 @@ import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_watchlist.*
 import ru.mikhailskiy.intensiv.R
 import ru.mikhailskiy.intensiv.data.database.MovieDatabase
-import ru.mikhailskiy.intensiv.data.extensions.threadSwitch
+import ru.mikhailskiy.intensiv.data.extension.threadSwitch
 import ru.mikhailskiy.intensiv.data.vo.MovieDetails
 import ru.mikhailskiy.intensiv.presentation.feed.FeedFragment
 import ru.mikhailskiy.intensiv.presentation.movie_details.MovieDetailsFragment

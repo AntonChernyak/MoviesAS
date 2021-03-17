@@ -10,7 +10,7 @@ import androidx.core.view.isVisible
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.search_toolbar.view.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.extensions.afterTextChanged
+import ru.mikhailskiy.intensiv.data.extension.afterTextChanged
 
 class SearchBar @JvmOverloads constructor(
     context: Context,

@@ -1,20 +1,20 @@
 package ru.mikhailskiy.intensiv.data.repository.remote
 
 import io.reactivex.Single
-import ru.mikhailskiy.intensiv.data.extensions.toMoviesList
+import ru.mikhailskiy.intensiv.data.extension.toMoviesList
 import ru.mikhailskiy.intensiv.data.network.MovieApiClient
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.domain.repository.MoviesRepository
 import ru.mikhailskiy.intensiv.presentation.feed.FeedFragment
 
-class NowPlayingMoviesRemoteRemoteRepository : MoviesRepository {
+class TopRatedMoviesRemoteRpository : MoviesRepository {
 
     override fun getMovies(): Single<List<Movie>> {
         return MovieApiClient
             .apiClient
-            .getNowPlayingMovie()
+            .getTopRatedMovies()
             .map {
-                it.toMoviesList(FeedFragment.MovieType.NOW_PLAYING.name)
+                it.toMoviesList(FeedFragment.MovieType.TOP_RATED.name)
             }
     }
 }

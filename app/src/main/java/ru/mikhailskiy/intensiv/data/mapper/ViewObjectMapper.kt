@@ -1,4 +1,4 @@
-package ru.mikhailskiy.intensiv.data.mappers
+package ru.mikhailskiy.intensiv.data.mapper
 
 interface ViewObjectMapper<VO, DTO> {
 

@@ -1,7 +1,7 @@
 package ru.mikhailskiy.intensiv.domain.usecase
 
 import io.reactivex.Single
-import ru.mikhailskiy.intensiv.data.extensions.threadSwitch
+import ru.mikhailskiy.intensiv.data.extension.threadSwitch
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.domain.repository.TvShowsRepository
 

@@ -1,4 +1,4 @@
-package ru.mikhailskiy.intensiv.data.extensions
+package ru.mikhailskiy.intensiv.data.extension
 
 import android.view.View.GONE
 import android.view.View.VISIBLE

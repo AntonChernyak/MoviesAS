@@ -1,4 +1,4 @@
-package ru.mikhailskiy.intensiv.data.mappers
+package ru.mikhailskiy.intensiv.data.mapper
 
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.data.vo.MovieDetails

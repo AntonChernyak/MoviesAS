@@ -1,7 +1,7 @@
-package ru.mikhailskiy.intensiv.data.extensions
+package ru.mikhailskiy.intensiv.data.extension
 
-import ru.mikhailskiy.intensiv.data.dto.movies_dto.MovieResponseDto
-import ru.mikhailskiy.intensiv.data.mappers.MovieDtoMapper
+import ru.mikhailskiy.intensiv.data.dto.movie.MovieResponseDto
+import ru.mikhailskiy.intensiv.data.mapper.MovieDtoMapper
 import ru.mikhailskiy.intensiv.data.vo.Movie
 
 fun Double.voteAverageToRating(): Float = this.div(2).toFloat()

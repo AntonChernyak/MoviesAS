@@ -14,12 +14,12 @@ import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.extensions.afterTextChanged
+import ru.mikhailskiy.intensiv.data.extension.afterTextChanged
 import ru.mikhailskiy.intensiv.data.repository.local.*
-import ru.mikhailskiy.intensiv.data.repository.remote.NowPlayingMoviesRemoteRemoteRepository
-import ru.mikhailskiy.intensiv.data.repository.remote.PopularMoviesRemoteRemoteRepository
-import ru.mikhailskiy.intensiv.data.repository.remote.TopRatedMoviesRemoteRemoteRepository
-import ru.mikhailskiy.intensiv.data.repository.remote.UpcomingMoviesRemoteRemoteRepository
+import ru.mikhailskiy.intensiv.data.repository.remote.NowPlayingMoviesRemoteRepository
+import ru.mikhailskiy.intensiv.data.repository.remote.PopularMoviesRemoteRepository
+import ru.mikhailskiy.intensiv.data.repository.remote.TopRatedMoviesRemoteRpository
+import ru.mikhailskiy.intensiv.data.repository.remote.UpcomingMoviesRemoteRepository
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.domain.repository.MoviesRepository
 import ru.mikhailskiy.intensiv.domain.usecase.FeedFragmentUseCase
@@ -34,7 +34,7 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
             FeedFragmentUseCase(
                 createRemoteRepository(),
                 createLocalRepository(),
-                DbRepository(requireActivity())
+                MoviesStoreRepository(requireActivity())
             )
         )
     }
@@ -89,16 +89,16 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
     override fun showMovies(map: Map<MovieType, List<Movie>>) {
         moviesMap = map as HashMap<MovieType, List<Movie>>
         map[MovieType.TOP_RATED]?.let { movieVoList ->
-            addMovieListToAdapter(movieVoList, R.string.top_rated, 2000)
+            addMovieListToAdapter(movieVoList, R.string.top_rated, TOP_RATED_VOTE_COUNT)
         }
         map[MovieType.POPULAR]?.let { movieVoList ->
-            addMovieListToAdapter(movieVoList, R.string.popular, 500)
+            addMovieListToAdapter(movieVoList, R.string.popular, POPULAR_VOTE_COUNT)
         }
         map[MovieType.NOW_PLAYING]?.let { movieVoList ->
-            addMovieListToAdapter(movieVoList, R.string.now_playing, 0)
+            addMovieListToAdapter(movieVoList, R.string.now_playing, NOW_PLAYING_VOTE_COUNT)
         }
         map[MovieType.UPCOMING]?.let { movieVoList ->
-            addMovieListToAdapter(movieVoList, R.string.upcoming, 0)
+            addMovieListToAdapter(movieVoList, R.string.upcoming, UPCOMING_VOTE_COUNT)
         }
     }
 
@@ -111,16 +111,16 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
     }
 
     override fun showEmptyMovies() {
-        addMovieListToAdapter(emptyList(), R.string.top_rated, 2000)
-        addMovieListToAdapter(emptyList(), R.string.popular, 500)
-        addMovieListToAdapter(emptyList(), R.string.now_playing, 0)
-        addMovieListToAdapter(emptyList(), R.string.upcoming, 0)
+        addMovieListToAdapter(emptyList(), R.string.top_rated)
+        addMovieListToAdapter(emptyList(), R.string.popular)
+        addMovieListToAdapter(emptyList(), R.string.now_playing)
+        addMovieListToAdapter(emptyList(), R.string.upcoming)
     }
 
     private fun addMovieListToAdapter(
         moviesVoList: List<Movie>,
         @StringRes label: Int,
-        voteCount: Int
+        voteCount: Int = 0
     ) {
         val moviesItemList = listOf(
             moviesVoList
@@ -180,10 +180,10 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
 
     private fun createRemoteRepository(): HashMap<MovieType, MoviesRepository> {
         return hashMapOf(
-            MovieType.TOP_RATED to TopRatedMoviesRemoteRemoteRepository(),
-            MovieType.UPCOMING to UpcomingMoviesRemoteRemoteRepository(),
-            MovieType.POPULAR to PopularMoviesRemoteRemoteRepository(),
-            MovieType.NOW_PLAYING to NowPlayingMoviesRemoteRemoteRepository()
+            MovieType.TOP_RATED to TopRatedMoviesRemoteRpository(),
+            MovieType.UPCOMING to UpcomingMoviesRemoteRepository(),
+            MovieType.POPULAR to PopularMoviesRemoteRepository(),
+            MovieType.NOW_PLAYING to NowPlayingMoviesRemoteRepository()
         )
     }
 
@@ -207,5 +207,9 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
         const val ARG_MOVIE_ID = "arg movie id"
         const val ARG_SEARCH = "arg search"
         const val ARG_DB_TYPE = "db_type"
+        const val TOP_RATED_VOTE_COUNT = 2000
+        const val POPULAR_VOTE_COUNT = 500
+        const val NOW_PLAYING_VOTE_COUNT = 0
+        const val UPCOMING_VOTE_COUNT = 0
     }
 }

@@ -18,8 +18,8 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.fragment_search.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.extensions.threadSwitch
-import ru.mikhailskiy.intensiv.data.mappers.MovieDtoMapper
+import ru.mikhailskiy.intensiv.data.extension.threadSwitch
+import ru.mikhailskiy.intensiv.data.mapper.MovieDtoMapper
 import ru.mikhailskiy.intensiv.data.network.MovieApiClient
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.presentation.feed.FeedFragment

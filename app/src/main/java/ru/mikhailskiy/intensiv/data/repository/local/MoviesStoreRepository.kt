@@ -4,11 +4,11 @@ import android.content.Context
 import io.reactivex.Completable
 import ru.mikhailskiy.intensiv.data.database.MovieDatabase
 import ru.mikhailskiy.intensiv.data.vo.Movie
-import ru.mikhailskiy.intensiv.domain.repository.DbRepository
+import ru.mikhailskiy.intensiv.domain.repository.MoviesStoreRepository
 
-class DbRepository(
+class MoviesStoreRepository(
     private val context: Context
-) : DbRepository {
+) : MoviesStoreRepository {
 
     override fun saveMovies(moviesList: List<Movie>): Completable {
         return MovieDatabase.get(context).getMovieDao().saveMoviesList(moviesList)

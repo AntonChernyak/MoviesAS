@@ -1,4 +1,4 @@
-package ru.mikhailskiy.intensiv.data.dto.movies_details_dto
+package ru.mikhailskiy.intensiv.data.dto.movie_details
 
 data class GenreDto(
     val id: Int,

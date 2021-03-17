@@ -10,7 +10,7 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.tv_shows_fragment.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.repository.remote.TvShowsRemoteRepository
+import ru.mikhailskiy.intensiv.data.repository.remote.TvShowsRemoteRpository
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.domain.usecase.TvShowsFragmentUseCase
 import ru.mikhailskiy.intensiv.presentation.feed.FeedFragment.Companion.ARG_MOVIE_ID
@@ -19,7 +19,7 @@ class TvShowsFragment : Fragment(), TvShowsPresenter.TvShowsView {
 
     private val compositeDisposable = CompositeDisposable()
     private val tvShowsPresenter by lazy {
-        TvShowsPresenter(TvShowsFragmentUseCase(TvShowsRemoteRepository()))
+        TvShowsPresenter(TvShowsFragmentUseCase(TvShowsRemoteRpository()))
     }
     private val adapter by lazy {
         GroupAdapter<GroupieViewHolder>()

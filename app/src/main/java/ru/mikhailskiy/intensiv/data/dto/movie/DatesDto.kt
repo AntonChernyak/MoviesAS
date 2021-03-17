@@ -1,4 +1,4 @@
-package ru.mikhailskiy.intensiv.data.dto.movies_dto
+package ru.mikhailskiy.intensiv.data.dto.movie
 
 data class DatesDto(
     val maximum: String = "",

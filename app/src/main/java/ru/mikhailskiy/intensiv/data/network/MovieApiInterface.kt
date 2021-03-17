@@ -6,9 +6,9 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.mikhailskiy.intensiv.BuildConfig
-import ru.mikhailskiy.intensiv.data.dto.actors_dto.CreditsResponseDto
-import ru.mikhailskiy.intensiv.data.dto.movies_details_dto.MovieDetailsDto
-import ru.mikhailskiy.intensiv.data.dto.movies_dto.MovieResponseDto
+import ru.mikhailskiy.intensiv.data.dto.actor.CreditsResponseDto
+import ru.mikhailskiy.intensiv.data.dto.movie.MovieResponseDto
+import ru.mikhailskiy.intensiv.data.dto.movie_details.MovieDetailsDto
 
 interface MovieApiInterface {
 

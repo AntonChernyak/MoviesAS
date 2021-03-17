@@ -4,7 +4,7 @@ import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
 import kotlinx.android.synthetic.main.item_with_text.*
 import ru.mikhailskiy.intensiv.R
-import ru.mikhailskiy.intensiv.data.extensions.loadImage
+import ru.mikhailskiy.intensiv.data.extension.loadImage
 import ru.mikhailskiy.intensiv.data.vo.MovieDetails
 
 class MoviePreviewItem(

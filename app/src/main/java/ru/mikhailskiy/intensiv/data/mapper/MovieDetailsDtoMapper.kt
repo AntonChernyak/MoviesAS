@@ -1,7 +1,7 @@
-package ru.mikhailskiy.intensiv.data.mappers
+package ru.mikhailskiy.intensiv.data.mapper
 
-import ru.mikhailskiy.intensiv.data.dto.movies_details_dto.MovieDetailsDto
-import ru.mikhailskiy.intensiv.data.extensions.voteAverageToRating
+import ru.mikhailskiy.intensiv.data.dto.movie_details.MovieDetailsDto
+import ru.mikhailskiy.intensiv.data.extension.voteAverageToRating
 import ru.mikhailskiy.intensiv.data.vo.MovieDetails
 
 class MovieDetailsDtoMapper : ViewObjectMapper<MovieDetails, MovieDetailsDto> {
@@ -13,7 +13,7 @@ class MovieDetailsDtoMapper : ViewObjectMapper<MovieDetails, MovieDetailsDto> {
             posterPath = dto.posterPath,
             voteCount = dto.voteCount,
             rating = dto.voteAverage.voteAverageToRating(),
-            year = dto.releaseDate.substring(0, 4),
+            year = if (dto.releaseDate.length >= 4) dto.releaseDate.substring(0, 4) else "",
             genres = dto.genreDtos.joinToString { it.name },
             productionCompanies = dto.productionCompanyDtos.joinToString { it.name }
         )

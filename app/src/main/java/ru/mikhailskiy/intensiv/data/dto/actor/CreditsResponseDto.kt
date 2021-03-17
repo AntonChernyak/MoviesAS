@@ -1,4 +1,4 @@
-package ru.mikhailskiy.intensiv.data.dto.actors_dto
+package ru.mikhailskiy.intensiv.data.dto.actor
 
 data class CreditsResponseDto(
     val id: Int,
