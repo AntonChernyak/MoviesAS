@@ -175,7 +175,6 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
         presenter.saveMovies(sumList)
     }
 
-
 /*
     private fun clearDatabase() {
         compositeDisposable.add(

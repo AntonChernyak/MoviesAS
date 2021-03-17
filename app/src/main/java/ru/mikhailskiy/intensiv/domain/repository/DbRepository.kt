@@ -5,4 +5,6 @@ import ru.mikhailskiy.intensiv.data.vo.Movie
 
 interface DbRepository {
     fun saveMovies(moviesList: List<Movie>): Completable
+
+    fun deleteAllMovies(): Completable
 }

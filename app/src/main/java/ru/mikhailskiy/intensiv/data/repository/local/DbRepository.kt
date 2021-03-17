@@ -13,4 +13,8 @@ class DbRepository(
     override fun saveMovies(moviesList: List<Movie>): Completable {
         return MovieDatabase.get(context).getMovieDao().saveMoviesList(moviesList)
     }
+
+    override fun deleteAllMovies(): Completable {
+        return MovieDatabase.get(context).getMovieDao().deleteAllMovies()
+    }
 }
