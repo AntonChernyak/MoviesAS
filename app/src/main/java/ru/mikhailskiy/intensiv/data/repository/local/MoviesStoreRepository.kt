@@ -10,11 +10,15 @@ class MoviesStoreRepository(
     private val context: Context
 ) : MoviesStoreRepository {
 
+    private val movieDao by lazy {
+        MovieDatabase.get(context).getMovieDao()
+    }
+
     override fun saveMovies(moviesList: List<Movie>): Completable {
-        return MovieDatabase.get(context).getMovieDao().saveMoviesList(moviesList)
+        return movieDao.saveMoviesList(moviesList)
     }
 
     override fun deleteAllMovies(): Completable {
-        return MovieDatabase.get(context).getMovieDao().deleteAllMovies()
+        return movieDao.deleteAllMovies()
     }
 }
