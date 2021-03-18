@@ -14,11 +14,13 @@ import kotlinx.android.synthetic.main.feed_fragment.*
 import kotlinx.android.synthetic.main.feed_header.*
 import kotlinx.android.synthetic.main.search_toolbar.view.*
 import ru.mikhailskiy.intensiv.R
+import ru.mikhailskiy.intensiv.data.database.MovieDatabase
 import ru.mikhailskiy.intensiv.data.extension.afterTextChanged
+import ru.mikhailskiy.intensiv.data.network.MovieApiClient
 import ru.mikhailskiy.intensiv.data.repository.local.*
 import ru.mikhailskiy.intensiv.data.repository.remote.NowPlayingMoviesRemoteRepository
 import ru.mikhailskiy.intensiv.data.repository.remote.PopularMoviesRemoteRepository
-import ru.mikhailskiy.intensiv.data.repository.remote.TopRatedMoviesRemoteRpository
+import ru.mikhailskiy.intensiv.data.repository.remote.TopRatedMoviesRemoteRepository
 import ru.mikhailskiy.intensiv.data.repository.remote.UpcomingMoviesRemoteRepository
 import ru.mikhailskiy.intensiv.data.vo.Movie
 import ru.mikhailskiy.intensiv.domain.repository.MoviesRepository
@@ -28,13 +30,18 @@ import timber.log.Timber
 
 class FeedFragment : Fragment(), FeedPresenter.FeedView {
 
-    // Инициализируем
+    private val movieDao by lazy {
+        MovieDatabase.get(requireActivity()).getMovieDao()
+    }
+    private val movieApi by lazy {
+        MovieApiClient.apiClient
+    }
     private val presenter: FeedPresenter by lazy {
         FeedPresenter(
             FeedFragmentUseCase(
                 createRemoteRepository(),
                 createLocalRepository(),
-                MoviesStoreRepository(requireActivity())
+                MoviesStoreRepository(movieDao)
             )
         )
     }
@@ -180,19 +187,19 @@ class FeedFragment : Fragment(), FeedPresenter.FeedView {
 
     private fun createRemoteRepository(): HashMap<MoviesRepository.MovieType, MoviesRepository> {
         return hashMapOf(
-            MoviesRepository.MovieType.TOP_RATED to TopRatedMoviesRemoteRpository(),
-            MoviesRepository.MovieType.UPCOMING to UpcomingMoviesRemoteRepository(),
-            MoviesRepository.MovieType.POPULAR to PopularMoviesRemoteRepository(),
-            MoviesRepository.MovieType.NOW_PLAYING to NowPlayingMoviesRemoteRepository()
+            MoviesRepository.MovieType.TOP_RATED to TopRatedMoviesRemoteRepository(movieApi),
+            MoviesRepository.MovieType.UPCOMING to UpcomingMoviesRemoteRepository(movieApi),
+            MoviesRepository.MovieType.POPULAR to PopularMoviesRemoteRepository(movieApi),
+            MoviesRepository.MovieType.NOW_PLAYING to NowPlayingMoviesRemoteRepository(movieApi)
         )
     }
 
     private fun createLocalRepository(): HashMap<MoviesRepository.MovieType, MoviesRepository> {
         return hashMapOf(
-            MoviesRepository.MovieType.TOP_RATED to TopRatedMoviesLocalRepository(requireActivity()),
-            MoviesRepository.MovieType.UPCOMING to UpcomingMoviesLocalRepository(requireActivity()),
-            MoviesRepository.MovieType.POPULAR to PopularMoviesLocalRepository(requireActivity()),
-            MoviesRepository.MovieType.NOW_PLAYING to NowPlayingMoviesLocalRepository(requireActivity())
+            MoviesRepository.MovieType.TOP_RATED to TopRatedMoviesLocalRepository(movieDao),
+            MoviesRepository.MovieType.UPCOMING to UpcomingMoviesLocalRepository(movieDao),
+            MoviesRepository.MovieType.POPULAR to PopularMoviesLocalRepository(movieDao),
+            MoviesRepository.MovieType.NOW_PLAYING to NowPlayingMoviesLocalRepository(movieDao)
         )
     }
 
